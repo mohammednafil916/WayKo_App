@@ -1,17 +1,27 @@
-# wayko
+# WAYKO – Library Management Application
 
-A new Flutter project.
+WAYKO is a Flutter-based Library Management Application designed to make library operations simple and efficient.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+* User authentication
+* Browse and search books
+* Book categories
+* Book details
+* Borrow and return books
+* Library management
+* Local data storage
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Technologies Used
+
+* Flutter
+* Dart
+* Hive
+* SharedPreferences
+
+
+## Project Purpose
+
+This project was developed to practice Flutter application development, local database management, CRUD operations, state management, and responsive UI design.
