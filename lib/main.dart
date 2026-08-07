@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:wayko/Screens/splash_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(WayKoApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class WayKoApp extends StatelessWidget {
+  const WayKoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp();
+    return MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen());
   }
 }
