@@ -1,6 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:wayko/Routes/screens_routes.dart';
+import 'package:wayko/widgets/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,47 +16,68 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: SizedBox(
-            height: double.infinity,
-            width: double.infinity,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(10),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Welcome Back!",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Welcome Back!",
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        "Login to continue to WayKo",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 3),
-                Text(
-                  "Login to continue to WayKo",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
                 SizedBox(
                   height: 250,
                   width: 500,
                   child: Image.asset(
                     "assets/images/LoginPage_Image.png",
-                    fit: BoxFit.fill,
+                    fit: BoxFit.contain,
                   ),
                 ),
-                SizedBox(height: 50),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    hintText: "Enter Your Email",
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
+                SizedBox(height: 30),
+                Text(
+                  "Email",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 0, 12, 143),
                   ),
+                ),
+                SizedBox(height: 5),
+                CustomTextField(
+                  hintText: "Enter Your Email",
+                  prefixIcon: Icons.email,
                 ),
                 SizedBox(height: 10),
+                Text(
+                  "Password",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 0, 12, 143),
+                  ),
+                ),
+                SizedBox(height: 5),
                 TextFormField(
                   obscureText: !isPasswordVisible,
                   decoration: InputDecoration(
-                    labelText: "Password",
                     hintText: "Enter Your Password",
                     prefixIcon: Icon(Icons.lock),
                     suffixIcon: IconButton(
@@ -71,7 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             : Icons.visibility_off,
                       ),
                     ),
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
                 SizedBox(height: 60),
@@ -79,25 +102,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 50,
                   width: double.infinity,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 15, 30, 198),
-                    ),
-                    onPressed: () {},
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.navigation,
+                      );
+                    },
+                    child: Text("Login"),
                   ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Don't have an account?"),
-                    TextButton(onPressed: () {}, child: Text("Register")),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.register);
+                      },
+                      child: Text("Register"),
+                    ),
                   ],
                 ),
               ],
