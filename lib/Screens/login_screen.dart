@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/custom_text_field.dart';
+import 'package:wayko/Services/authentication_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,7 +11,37 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
   bool isPasswordVisible = false;
+
+  void login() {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter your email and password")),
+      );
+      return;
+    }
+
+    if (!email.endsWith("@gmail.com")) {
+      email = "$email@gmail.com";
+    }
+
+    bool success = AuthenticationService.login(email, password);
+
+    if (success) {
+      Navigator.pushReplacementNamed(context, AppRoutes.navigation);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Invalid username or password")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 5),
                 CustomTextField(
+                  controller: emailController,
                   hintText: "Enter Your Email",
                   prefixIcon: Icons.email,
                 ),
@@ -76,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 5),
                 TextFormField(
+                  controller: passwordController,
                   obscureText: !isPasswordVisible,
                   decoration: InputDecoration(
                     hintText: "Enter Your Password",
@@ -101,15 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 50,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppRoutes.navigation,
-                      );
-                    },
-                    child: Text("Login"),
-                  ),
+                  child: ElevatedButton(onPressed: login, child: Text("Login")),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/custom_text_field.dart';
+import 'package:wayko/Services/authentication_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,7 +11,59 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmpasswordController = TextEditingController();
+
   bool isPasswordVisible = false;
+
+  void register() {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmpasswordController.text.trim();
+
+    if (name.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Please fill all fields")));
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Password do not match")));
+      return;
+    }
+
+    if (!email.endsWith("@gmail.com")) {
+      email = "$email@gmail.com";
+    }
+
+    AuthenticationService.register(name, email, password);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Your account created successfully")),
+    );
+
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmpasswordController.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,6 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 5),
                 CustomTextField(
+                  controller: nameController,
                   hintText: "Enter your full name",
                   prefixIcon: Icons.person,
                 ),
@@ -64,6 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 5),
                 CustomTextField(
+                  controller: emailController,
                   hintText: "Enter your email",
                   prefixIcon: Icons.email,
                 ),
@@ -78,6 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 5),
                 TextFormField(
+                  controller: passwordController,
                   obscureText: !isPasswordVisible,
                   decoration: InputDecoration(
                     hintText: "Enter Your Password",
@@ -110,6 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 5),
                 TextFormField(
+                  controller: confirmpasswordController,
                   obscureText: !isPasswordVisible,
                   decoration: InputDecoration(
                     hintText: "Enter Your Password",
@@ -136,9 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 50,
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, AppRoutes.login);
-                    },
+                    onPressed: register,
                     child: Text("Create Account"),
                   ),
                 ),

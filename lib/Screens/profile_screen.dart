@@ -10,6 +10,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text("Profile")));
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text("Profile"),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.settings))],
+      ),
+    );
   }
 }

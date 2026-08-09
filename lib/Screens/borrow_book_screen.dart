@@ -10,6 +10,6 @@ class BorrowBookScreen extends StatefulWidget {
 class _BorrowBookScreenState extends State<BorrowBookScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(appBar: AppBar(title: Text("Borrow Book")));
   }
 }

@@ -18,7 +18,6 @@ class WayKoApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       onGenerateRoute: AppRoutes.generateRoute,
       theme: AppTheme.lightTheme,
-      home: NavigationScreen(),
     );
   }
 }

@@ -78,7 +78,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => StatisticsScreen());
 
       case navigation:
-        return MaterialPageRoute(builder: (_) => StatisticsScreen());
+        return MaterialPageRoute(builder: (_) => NavigationScreen());
 
       default:
         return MaterialPageRoute(builder: (_) => NavigationScreen());

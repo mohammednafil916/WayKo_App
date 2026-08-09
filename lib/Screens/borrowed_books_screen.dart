@@ -10,6 +10,6 @@ class BorrowedBooksScreen extends StatefulWidget {
 class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text("Borrowed Books")));
+    return Scaffold(appBar: AppBar(automaticallyImplyLeading: false,title: Text("Borrowed Books")));
   }
 }

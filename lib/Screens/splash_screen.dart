@@ -21,7 +21,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Image.asset("assets/images/Logo_Motto_Image.png", fit: BoxFit.fill),
+      body: SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: Image.asset(
+          "assets/images/Logo_Motto_Image.png",
+          fit: BoxFit.fill,
+        ),
+      ),
     );
   }
 }

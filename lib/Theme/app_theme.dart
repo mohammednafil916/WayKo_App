@@ -12,7 +12,7 @@ class AppTheme {
       centerTitle: true,
       titleTextStyle: TextStyle(
         fontWeight: FontWeight.bold,
-        fontSize: 10,
+        fontSize: 24,
         color: Colors.white,
       ),
     ),

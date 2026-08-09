@@ -4,12 +4,13 @@ class BorrowedBookDetailsScreen extends StatefulWidget {
   const BorrowedBookDetailsScreen({super.key});
 
   @override
-  State<BorrowedBookDetailsScreen> createState() => _BorrowedBookDetailsScreenState();
+  State<BorrowedBookDetailsScreen> createState() =>
+      _BorrowedBookDetailsScreenState();
 }
 
 class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(appBar: AppBar(title: Text("Borrowed Book Details")));
   }
 }
