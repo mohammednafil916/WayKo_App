@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Services/authentication_service.dart';
 import 'package:wayko/widgets/banner_images.dart';
-import 'package:wayko/widgets/statics_card.dart';
+import 'package:wayko/widgets/library_overview_card.dart';
 import 'package:wayko/widgets/quick_action_card.dart';
+import 'package:wayko/widgets/recently_book_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback onViewAllBooks;
+  const HomeScreen({super.key, required this.onViewAllBooks});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 10),
               BannerImages(),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               Text(
                 "Library Overview",
                 style: TextStyle(
@@ -60,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: "1,250",
                       icon: Icons.library_books,
                       iconColor: Colors.black,
-                      color: const Color.fromARGB(255, 213, 245, 177),
+                      color: const Color.fromARGB(255, 179, 231, 255),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -70,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: "1,100 ",
                       icon: Icons.book,
                       iconColor: Colors.black,
-                      color: const Color.fromARGB(255, 179, 231, 255),
+                      color: const Color.fromARGB(255, 213, 245, 177),
                     ),
                   ),
                 ],
@@ -84,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: "150",
                       icon: Icons.person,
                       iconColor: Colors.black,
-                      color: const Color.fromARGB(255, 179, 231, 255),
+                      color: const Color.fromARGB(255, 255, 184, 179),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -94,12 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       value: "150",
                       icon: Icons.star_border,
                       iconColor: Colors.black,
-                      color: const Color.fromARGB(255, 213, 245, 177),
+                      color: const Color.fromARGB(255, 179, 231, 255),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               Text(
                 "Quick Actions",
                 style: TextStyle(
@@ -108,7 +110,62 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Color.fromARGB(255, 0, 12, 143),
                 ),
               ),
+              SizedBox(height: 5),
               QuickActionCard(),
+              SizedBox(height: 15),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Recently added",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Color.fromARGB(255, 0, 12, 143),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: widget.onViewAllBooks,
+                        child: Text(
+                          "View all",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Color.fromARGB(255, 0, 12, 143),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      RecentlyBookCard(
+                        image: "assets/images/book1.jpg",
+                        title: "title",
+                        category: "category",
+                      ),
+                      RecentlyBookCard(
+                        image: "assets/images/book2.jpg",
+                        title: "title",
+                        category: "category",
+                      ),
+                      RecentlyBookCard(
+                        image: "assets/images/book3.jpg",
+                        title: "title",
+                        category: "category",
+                      ),
+                      RecentlyBookCard(
+                        image: "assets/images/book4.jpg",
+                        title: "title",
+                        category: "category",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wayko/Routes/screens_routes.dart';
 
 class QuickActionCard extends StatelessWidget {
   const QuickActionCard({super.key});
@@ -6,7 +7,7 @@ class QuickActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 65,
+      height: 75,
       width: double.infinity,
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -15,6 +16,7 @@ class QuickActionCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             Icons.analytics_outlined,
@@ -42,7 +44,9 @@ class QuickActionCard extends StatelessWidget {
           ),
           Spacer(),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.statistics);
+            },
             icon: Icon(Icons.arrow_forward_ios_rounded),
           ),
         ],

@@ -7,7 +7,6 @@ import 'package:wayko/Screens/edit_book_screen.dart';
 import 'package:wayko/Screens/splash_screen.dart';
 import 'package:wayko/Screens/login_screen.dart';
 import 'package:wayko/Screens/register_screen.dart';
-import 'package:wayko/Screens/home_screen.dart';
 import 'package:wayko/Screens/book_screen.dart';
 import 'package:wayko/Screens/borrowed_books_screen.dart';
 import 'package:wayko/Screens/favorites_screen.dart';
@@ -20,7 +19,6 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
-  static const String home = '/home';
   static const String books = '/books';
   static const String favorites = '/favorites';
   static const String profile = '/profile';
@@ -43,9 +41,6 @@ class AppRoutes {
 
       case register:
         return MaterialPageRoute(builder: (_) => RegisterScreen());
-
-      case home:
-        return MaterialPageRoute(builder: (_) => HomeScreen());
 
       case books:
         return MaterialPageRoute(builder: (_) => BookScreen());

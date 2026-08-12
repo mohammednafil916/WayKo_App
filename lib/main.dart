@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/Screens/login_screen.dart';
-import 'package:wayko/Screens/navigation_screen.dart';
 import 'package:wayko/Theme/app_theme.dart';
 import 'Routes/screens_routes.dart';
 
