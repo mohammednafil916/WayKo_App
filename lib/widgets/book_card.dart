@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wayko/Routes/screens_routes.dart';
 
 class BookCard extends StatelessWidget {
   final String image;
@@ -6,7 +7,7 @@ class BookCard extends StatelessWidget {
   final String author;
   final String category;
   final String available;
-  final VoidCallback? onClick;
+
   const BookCard({
     super.key,
     required this.image,
@@ -14,18 +15,17 @@ class BookCard extends StatelessWidget {
     required this.author,
     required this.category,
     required this.available,
-    this.onClick,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onClick,
-      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.bookDetails);
+      },
       child: Container(
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey),
         ),

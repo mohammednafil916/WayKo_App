@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/Screens/book_details_screen.dart';
 import 'package:wayko/widgets/book_card.dart';
 
 class BookScreen extends StatefulWidget {
@@ -11,13 +10,6 @@ class BookScreen extends StatefulWidget {
 }
 
 class _BookScreenState extends State<BookScreen> {
-  void bookDetails() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BookDetailsScreen()),
-    );
-  }
-
   final List<String> categories = [
     "All",
     "Science",
@@ -33,15 +25,7 @@ class _BookScreenState extends State<BookScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Books"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.addBook);
-            },
-            icon: Icon(Icons.add_box),
-          ),
-          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-        ],
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -105,58 +89,33 @@ class _BookScreenState extends State<BookScreen> {
             ),
             SizedBox(height: 10),
             Expanded(
-              child: ListView(
-                children: [
-                  BookCard(
-                    image: "assets/images/book1.jpg",
-                    title: "title",
-                    author: "author",
-                    category: "category",
-                    available: "20",
-                    onClick: bookDetails,
-                  ),
-                  SizedBox(height: 10),
-                  BookCard(
-                    image: "assets/images/book1.jpg",
-                    title: "title",
-                    author: "author",
-                    category: "category",
-                    available: "20",
-                    onClick: bookDetails,
-                  ),
-                  SizedBox(height: 10),
-                  BookCard(
-                    image: "assets/images/book1.jpg",
-                    title: "title",
-                    author: "author",
-                    category: "category",
-                    available: "20",
-                    onClick: bookDetails,
-                  ),
-                  SizedBox(height: 10),
-                  BookCard(
-                    image: "assets/images/book1.jpg",
-                    title: "title",
-                    author: "author",
-                    category: "category",
-                    available: "20",
-                    onClick: bookDetails,
-                  ),
-                  SizedBox(height: 10),
-                  BookCard(
-                    image: "assets/images/book1.jpg",
-                    title: "title",
-                    author: "author",
-                    category: "category",
-                    available: "20",
-                    onClick: bookDetails,
-                  ),
-                  SizedBox(height: 10),
-                ],
+              child: ListView.builder(
+                itemCount: 10,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: BookCard(
+                      image: "assets/images/book1.jpg",
+                      title: "title",
+                      author: "author",
+                      category: "category",
+                      available: "available",
+                    ),
+                  );
+                },
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.lightBlue,
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.addBook);
+        },
+        child: Icon(Icons.add, color: Colors.black),
       ),
     );
   }
