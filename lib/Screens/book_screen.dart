@@ -99,7 +99,7 @@ class _BookScreenState extends State<BookScreen> {
                       title: "title",
                       author: "author",
                       category: "category",
-                      available: "available",
+                      available: "13",
                     ),
                   );
                 },

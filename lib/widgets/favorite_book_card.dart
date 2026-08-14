@@ -48,7 +48,7 @@ class FavoriteBookCard extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(width: 10),
+            SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +66,7 @@ class FavoriteBookCard extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: Colors.lightBlueAccent,
+                      color: const Color.fromARGB(255, 72, 197, 255),
                       borderRadius: BorderRadius.circular(3),
                     ),
                     child: Text(
