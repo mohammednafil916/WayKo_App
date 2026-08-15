@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/book_details_header.dart';
 import 'package:wayko/widgets/book_location_card.dart';
 import 'package:wayko/widgets/book_stats_card.dart';
@@ -87,9 +88,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(8),
+          padding: EdgeInsets.all(10),
           child: BookActionButtons(
-            onBorrow: () {},
+            onBorrow: () {
+              Navigator.pushNamed(context, AppRoutes.borrowBook);
+            },
             onEdit: () {},
             onDelete: () {},
           ),

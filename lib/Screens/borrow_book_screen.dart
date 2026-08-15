@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wayko/widgets/borrow_book_header.dart';
+import 'package:wayko/widgets/borrower_infromation.dart';
+import 'package:wayko/widgets/borrow_button.dart';
 
 class BorrowBookScreen extends StatefulWidget {
   const BorrowBookScreen({super.key});
@@ -10,6 +13,42 @@ class BorrowBookScreen extends StatefulWidget {
 class _BorrowBookScreenState extends State<BorrowBookScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text("Borrow Book")));
+    return Scaffold(
+      appBar: AppBar(title: Text("Borrow Book")),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BorrowBookHeader(
+              image: "assets/images/book2.jpg",
+              title: "title",
+              author: "author",
+              category: "category",
+              copiesCount: "20",
+            ),
+            SizedBox(height: 15),
+            Text(
+              "Borrower Infrormation",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.blue.shade900,
+              ),
+            ),
+            SizedBox(height: 10),
+            BorrowerInfoCard(),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: BorrowButton(onPress: (){
+            Navigator.pop(context);
+          })
+        ),
+      ),
+    );
   }
 }
