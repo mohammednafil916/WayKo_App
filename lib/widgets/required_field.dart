@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class BorrowerRequiredField extends StatelessWidget {
+class RequiredField extends StatelessWidget {
   final String title;
 
-  const BorrowerRequiredField({super.key, required this.title});
+  const RequiredField({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {

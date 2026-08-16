@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
-class BorrowButton extends StatelessWidget {
+class BottomButton extends StatelessWidget {
+  final String title;
+  final IconData? icon;
   final VoidCallback onPress;
-  const BorrowButton({super.key, required this.onPress});
+  const BottomButton({
+    super.key,
+    required this.onPress,
+    required this.title,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 60,
+      height: 50,
       child: ElevatedButton(
         onPressed: onPress,
         style: ElevatedButton.styleFrom(
@@ -20,10 +27,10 @@ class BorrowButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.post_add),
+            Icon(icon),
             SizedBox(width: 3),
             Text(
-              "Confirm Borrow",
+              title,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],

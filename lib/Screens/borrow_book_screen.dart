@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/widgets/borrow_book_header.dart';
 import 'package:wayko/widgets/borrower_infromation.dart';
-import 'package:wayko/widgets/borrow_button.dart';
+import 'package:wayko/widgets/bottom_button.dart';
 
 class BorrowBookScreen extends StatefulWidget {
   const BorrowBookScreen({super.key});
@@ -44,9 +44,11 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(20),
-          child: BorrowButton(onPress: (){
-            Navigator.pop(context);
-          })
+          child: BottomButton(
+            onPress: () {},
+            title: "Confirm Borrow",
+            icon: Icons.add_home_sharp,
+          ),
         ),
       ),
     );

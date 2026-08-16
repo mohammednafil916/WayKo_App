@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/widgets/date_input_field.dart';
-import 'package:wayko/widgets/borrower_required_field.dart';
+import 'package:wayko/widgets/required_field.dart';
 
 class BorrowerInfoCard extends StatefulWidget {
   const BorrowerInfoCard({super.key});
@@ -50,7 +50,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BorrowerRequiredField(title: "Borrower Name"),
+          RequiredField(title: "Borrower Name"),
           SizedBox(height: 5),
           TextField(
             controller: borrowerNameController,
@@ -64,7 +64,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
             ),
           ),
           SizedBox(height: 12),
-          BorrowerRequiredField(title: "Contact"),
+          RequiredField(title: "Contact"),
           SizedBox(height: 5),
           TextField(
             controller: contactController,
@@ -79,7 +79,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
             ),
           ),
           SizedBox(height: 12),
-          BorrowerRequiredField(title: "Borrow Date"),
+          RequiredField(title: "Borrow Date"),
           SizedBox(height: 5),
           DateInputField(
             controller: borrowDateController,
@@ -89,7 +89,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
             },
           ),
           SizedBox(height: 12),
-          BorrowerRequiredField(title: "Expected Return Date"),
+          RequiredField(title: "Expected Return Date"),
           SizedBox(height: 5),
           DateInputField(
             controller: returnDateController,

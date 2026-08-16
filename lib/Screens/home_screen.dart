@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: StaticsCard(
+                    child: LibraryOverviewCard(
                       title: "Total Books",
                       value: "1,250",
                       icon: Icons.library_books,
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: StaticsCard(
+                    child: LibraryOverviewCard(
                       title: "Available Books",
                       value: "1,100 ",
                       icon: Icons.book,
@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: StaticsCard(
+                    child: LibraryOverviewCard(
                       title: "Borrowed Books",
                       value: "150",
                       icon: Icons.person,
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: StaticsCard(
+                    child: LibraryOverviewCard(
                       title: "Favorites",
                       value: "150",
                       icon: Icons.star_border,
