@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/widgets/book_details_header.dart';
-import 'package:wayko/widgets/book_location_card.dart';
-import 'package:wayko/widgets/book_stats_card.dart';
-import 'package:wayko/widgets/book_action_buttons.dart';
+import 'package:wayko/widgets/Book%20Details/book_details_header.dart';
+import 'package:wayko/widgets/Book%20Details/book_location_card.dart';
+import 'package:wayko/widgets/Book%20Details/book_stats_card.dart';
+import 'package:wayko/widgets/Book%20Details/book_action_buttons.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   const BookDetailsScreen({super.key});

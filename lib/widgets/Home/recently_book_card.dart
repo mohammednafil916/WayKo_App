@@ -36,6 +36,6 @@ class RecentlyBookCard extends StatelessWidget {
           Text(category, style: TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
-    );
+    ); 
   }
 }

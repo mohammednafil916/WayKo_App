@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Services/authentication_service.dart';
-import 'package:wayko/widgets/banner_images.dart';
-import 'package:wayko/widgets/library_overview_card.dart';
-import 'package:wayko/widgets/quick_action_card.dart';
-import 'package:wayko/widgets/recently_book_card.dart';
+import 'package:wayko/widgets/Home/banner_images.dart';
+import 'package:wayko/widgets/Home/library_overview_card.dart';
+import 'package:wayko/widgets/Home/quick_action_card.dart';
+import 'package:wayko/widgets/Home/recently_book_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onViewAllBooks;
@@ -154,11 +154,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       RecentlyBookCard(
                         image: "assets/images/book3.jpg",
-                        title: "title",
-                        category: "category",
-                      ),
-                      RecentlyBookCard(
-                        image: "assets/images/book4.jpg",
                         title: "title",
                         category: "category",
                       ),

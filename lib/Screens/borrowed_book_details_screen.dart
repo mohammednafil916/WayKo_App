@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/widgets/borrowed_book_header.dart';
-import 'package:wayko/widgets/borrower_info_card.dart';
-import 'package:wayko/widgets/borrowed_book_button.dart';
+import 'package:wayko/widgets/Borrowed%20Book%20Details/borrowed_book_header.dart';
+import 'package:wayko/widgets/Borrowed%20Book%20Details/borrower_info_card.dart';
+import 'package:wayko/widgets/Borrowed%20Book%20Details/borrowed_book_button.dart';
 
 class BorrowedBookDetailsScreen extends StatefulWidget {
   const BorrowedBookDetailsScreen({super.key});

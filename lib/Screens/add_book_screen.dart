@@ -3,7 +3,7 @@ import 'package:wayko/widgets/Add Book/book_copies_counter.dart';
 import 'package:wayko/widgets/Add Book/book_dropdown.dart';
 import 'package:wayko/widgets/Add Book/book_text_field.dart';
 import 'package:wayko/widgets/Add Book/upload_cover_box.dart';
-import 'package:wayko/widgets/required_field.dart';
+import 'package:wayko/widgets/Borrow%20Book/required_field.dart';
 import 'package:wayko/widgets/bottom_button.dart';
 
 class AddBookScreen extends StatefulWidget {

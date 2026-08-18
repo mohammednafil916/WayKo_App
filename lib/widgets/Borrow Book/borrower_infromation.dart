@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/widgets/date_input_field.dart';
-import 'package:wayko/widgets/required_field.dart';
+import 'package:wayko/widgets/Borrow%20Book/date_input_field.dart';
+import 'package:wayko/widgets/Borrow%20Book/required_field.dart';
 
 class BorrowerInfoCard extends StatefulWidget {
   const BorrowerInfoCard({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/widgets/library_overview_card.dart';
+import 'package:wayko/widgets/Home/library_overview_card.dart';
 import 'package:wayko/widgets/Statistics/statistics_small_card.dart';
 import 'package:wayko/widgets/Statistics/circle_chart.dart';
 import 'package:wayko/widgets/Statistics/chart_percentage_data.dart';

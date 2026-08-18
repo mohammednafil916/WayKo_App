@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/widgets/book_card.dart';
+import 'package:wayko/widgets/Book/book_card.dart';
 
 class BookScreen extends StatefulWidget {
   const BookScreen({super.key});

@@ -18,8 +18,8 @@ class BottomInfoCard extends StatelessWidget {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Detailed reports helps you to track your '
-              'library growth and activity.',
+              "Detailed reports helps you to track your "
+              "library growth and activity.",
               style: TextStyle(fontSize: 12, height: 1),
             ),
           ),

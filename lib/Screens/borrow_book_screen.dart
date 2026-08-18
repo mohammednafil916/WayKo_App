@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/widgets/borrow_book_header.dart';
-import 'package:wayko/widgets/borrower_infromation.dart';
+import 'package:wayko/widgets/Borrow%20Book/borrow_book_header.dart';
+import 'package:wayko/widgets/Borrow%20Book/borrower_infromation.dart';
 import 'package:wayko/widgets/bottom_button.dart';
 
 class BorrowBookScreen extends StatefulWidget {

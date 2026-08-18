@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/widgets/favorite_book_card.dart';
+import 'package:wayko/widgets/Favorite/favorite_book_card.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/Services/authentication_service.dart';
-import 'package:wayko/widgets/profile_analysis_card.dart';
-import 'package:wayko/widgets/profile_action_card.dart';
+import 'package:wayko/widgets/Profile/profile_analysis_card.dart';
+import 'package:wayko/widgets/Profile/profile_action_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

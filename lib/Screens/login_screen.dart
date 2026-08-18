@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/widgets/custom_text_field.dart';
+import 'package:wayko/widgets/Login%20&%20Register/custom_text_field.dart';
 import 'package:wayko/Services/authentication_service.dart';
 
 class LoginScreen extends StatefulWidget {
