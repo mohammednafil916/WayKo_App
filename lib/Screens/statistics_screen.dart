@@ -135,7 +135,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 SizedBox(width: 8),
                 StatisticsSmallCard(title: "Racks", value: "38"),
                 SizedBox(width: 8),
-                StatisticsSmallCard(title: "Books", value: "142"),
+                StatisticsSmallCard(title: "Shelves", value: "9"),
               ],
             ),
             SizedBox(height: 20),

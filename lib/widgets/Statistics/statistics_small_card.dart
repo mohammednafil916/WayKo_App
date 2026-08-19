@@ -21,9 +21,15 @@ class StatisticsSmallCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(value, style: TextStyle(fontSize: 12, color: Colors.black)),
-            SizedBox(height: 3),
-            Text(title, style: TextStyle(fontSize: 8, color: Colors.black)),
+            Text(value, style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold,)),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 9,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),

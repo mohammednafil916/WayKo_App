@@ -69,8 +69,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        // backgroundColor: Colors.white,
+        // foregroundColor: Colors.black,
         title: Column(
           children: [
             Text(
@@ -82,6 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               "Create your account to get started",
               style: TextStyle(fontSize: 15),
             ),
+            SizedBox(height: 3),
           ],
         ),
       ),

@@ -69,25 +69,18 @@ class _BookScreenState extends State<BookScreen> {
               ),
             ),
             SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "1,250 Books",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Color.fromARGB(255, 0, 12, 143),
-                  ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "1,250 Books",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Color.fromARGB(255, 0, 12, 143),
                 ),
-                TextButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.filter_alt_outlined),
-                  label: Text("Filter"),
-                ),
-              ],
+              ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
                 itemCount: 10,

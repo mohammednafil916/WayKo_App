@@ -66,7 +66,7 @@ class BookDetailsHeader extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(width: 200),
+        SizedBox(width: 140),
         IconButton(
           onPressed: () {},
           icon: Icon(
