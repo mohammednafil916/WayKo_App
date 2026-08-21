@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Theme/app_theme.dart';
 import 'Routes/screens_routes.dart';
+import 'Services/hive_boxes.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HiveBoxes.init();
   runApp(WayKoApp());
 }
 
