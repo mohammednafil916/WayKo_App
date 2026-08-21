@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/Login%20&%20Register/custom_text_field.dart';
@@ -11,20 +12,22 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final nameController = TextEditingController();
+  final usernameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
 
+  final authenticationService = AuthenticationService();
+
   bool isPasswordVisible = false;
 
-  void register() {
-    String name = nameController.text.trim();
+  Future<void> register() async {
+    String username = usernameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String confirmPassword = confirmpasswordController.text.trim();
 
-    if (name.isEmpty ||
+    if (username.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
@@ -45,7 +48,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email = "$email@gmail.com";
     }
 
-    AuthenticationService.register(name, email, password);
+    bool success = await authenticationService.register(
+      username,
+      email,
+      password,
+    );
+
+    if (!success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("This email is already existing")));
+      return;
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Your account created successfully")),
@@ -56,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    nameController.dispose();
+    usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmpasswordController.dispose();
@@ -104,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 5),
                 CustomTextField(
-                  controller: nameController,
+                  controller: usernameController,
                   hintText: "Enter your full name",
                   prefixIcon: Icons.person,
                 ),

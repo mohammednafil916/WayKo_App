@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/Login%20&%20Register/custom_text_field.dart';
@@ -14,9 +15,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  final authenticationService = AuthenticationService();
+
   bool isPasswordVisible = false;
 
-  void login() {
+  Future<void> login() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
@@ -31,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
       email = "$email@gmail.com";
     }
 
-    bool success = AuthenticationService.login(email, password);
+    bool success = await authenticationService.login(email, password);
 
     if (success) {
       Navigator.pushReplacementNamed(context, AppRoutes.navigation);
