@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/Services/authentication_service.dart';
 import 'package:wayko/widgets/Profile/profile_analysis_card.dart';
 import 'package:wayko/widgets/Profile/profile_action_card.dart';
+import 'package:wayko/Models/user_model.dart';
+import 'package:wayko/Services/hive_boxes.dart';
+import 'package:wayko/Services/session_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,6 +14,27 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    String? userId = await SessionService.getLoggedUserId();
+    for (UserModel currentUser in HiveBoxes.userBox.values) {
+      if (currentUser.id == userId) {
+        setState(() {
+          user = currentUser;
+        });
+        break;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      AuthenticationService.registerName ?? "User",
+                      user?.username ?? "User",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -50,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     SizedBox(height: 3),
                     Text(
-                      AuthenticationService.registerEmail ?? "No email",
+                      user?.email ?? "No email",
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -86,7 +109,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: Text("Logout", style: TextStyle(color: Colors.red)),
                   trailing: IconButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, AppRoutes.login);
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Logout"),
+                            content: Text("Are you sure you want to logout?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await SessionService.logout();
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    AppRoutes.login,
+                                  );
+                                },
+                                child: Text(
+                                  "Logout",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                     icon: Icon(Icons.arrow_forward_ios, color: Colors.black),
                   ),

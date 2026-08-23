@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
+import 'package:wayko/Services/session_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,9 +14,19 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 3), () {
+    checkLogin();
+  }
+
+  Future<void> checkLogin() async {
+    await Future.delayed(Duration(seconds: 3));
+
+    bool loggedIn = await SessionService.isLoggedIn();
+
+    if (loggedIn) {
+      Navigator.pushReplacementNamed(context, AppRoutes.navigation);
+    } else {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
-    });
+    }
   }
 
   @override

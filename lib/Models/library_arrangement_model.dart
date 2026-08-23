@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'library_arrangement_model.g.dart';
 
-@HiveType(typeId: 02)
+@HiveType(typeId: 3)
 class LibraryArrangementModel extends HiveObject {
   @HiveField(0)
   String userId;

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/Services/authentication_service.dart';
 import 'package:wayko/widgets/Home/banner_images.dart';
 import 'package:wayko/widgets/Home/library_overview_card.dart';
 import 'package:wayko/widgets/Home/quick_action_card.dart';
 import 'package:wayko/widgets/Home/recently_book_card.dart';
+import 'package:wayko/Models/user_model.dart';
+import 'package:wayko/Services/hive_boxes.dart';
+import 'package:wayko/Services/session_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onViewAllBooks;
@@ -14,7 +16,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final String username = AuthenticationService.registerName ?? "User";
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    String? userId = await SessionService.getLoggedUserId();
+    for (UserModel currentUser in HiveBoxes.userBox.values) {
+      if (currentUser.id == userId) {
+        setState(() {
+          user = currentUser;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Welcome, $username👋",
+                "Welcome, ${user?.username ?? "User"}👋",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 3),
