@@ -9,7 +9,7 @@ part of 'library_arrangement_model.dart';
 class LibraryArrangementModelAdapter
     extends TypeAdapter<LibraryArrangementModel> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   LibraryArrangementModel read(BinaryReader reader) {
