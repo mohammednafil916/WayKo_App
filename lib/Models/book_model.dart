@@ -24,27 +24,30 @@ class BookModel extends HiveObject {
   Uint8List? coverImage;
 
   @HiveField(6)
-  int copies;
+  String description;
 
   @HiveField(7)
-  int availableCopies;
+  int copies;
 
   @HiveField(8)
-  String floor;
+  int availableCopies;
 
   @HiveField(9)
-  String section;
+  String floor;
 
   @HiveField(10)
-  String rack;
+  String section;
 
   @HiveField(11)
-  String shelf;
+  String rack;
 
   @HiveField(12)
-  bool isFavorite;
+  String shelf;
 
   @HiveField(13)
+  bool isFavorite;
+
+  @HiveField(14)
   DateTime createdAt;
 
   BookModel({
@@ -54,6 +57,7 @@ class BookModel extends HiveObject {
     required this.author,
     required this.category,
     this.coverImage,
+    required this.description,
     required this.copies,
     required this.availableCopies,
     required this.floor,

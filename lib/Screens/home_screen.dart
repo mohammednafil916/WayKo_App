@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           user = currentUser;
         });
+        break;
       }
     }
   }
