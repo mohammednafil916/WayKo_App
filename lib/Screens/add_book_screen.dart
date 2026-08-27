@@ -1,10 +1,16 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wayko/widgets/Add Book/book_copies_counter.dart';
 import 'package:wayko/widgets/Add Book/book_dropdown.dart';
 import 'package:wayko/widgets/Add Book/book_text_field.dart';
 import 'package:wayko/widgets/Add Book/upload_cover_box.dart';
 import 'package:wayko/widgets/Borrow%20Book/required_field.dart';
 import 'package:wayko/widgets/bottom_button.dart';
+import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/Services/library_arrangement_service.dart';
+import 'package:wayko/Models/book_model.dart';
+import 'package:wayko/Services/book_service.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -18,6 +24,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final authorController = TextEditingController();
   final descriptionController = TextEditingController();
 
+  Uint8List? coverImage;
   String? selectedCategory;
   String? selectedFloor;
   String? selectedShelf;
@@ -26,11 +33,69 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   int copies = 1;
 
-  List<String> categories = ['Fiction', 'Technology', 'History', 'Self Help'];
-  List<String> floors = ['Floor 1', 'Floor 2', 'Floor 3'];
-  List<String> shelves = ['Shelf 1', 'Shelf 2', 'Shelf 3'];
-  List<String> sections = ['Section A', 'Section B', 'Section C'];
-  List<String> racks = ['Rack 1', 'Rack 2', 'Rack 3'];
+  List<String> categories = [];
+  List<String> floors = [];
+  List<String> shelves = [];
+  List<String> sections = [];
+  List<String> racks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadLibraryArrangements();
+  }
+
+  Future<void> loadLibraryArrangements() async {
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    setState(() {
+      categories = LibraryArrangementService.getCategories(userId);
+      floors = LibraryArrangementService.getFloors(userId);
+      shelves = LibraryArrangementService.getShelves(userId);
+      sections = LibraryArrangementService.getSections(userId);
+      racks = LibraryArrangementService.getRacks(userId);
+    });
+  }
+
+  Future<void> saveBook() async {
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    BookModel book = BookModel(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      userId: userId,
+      title: titleController.text,
+      author: authorController.text,
+      category: selectedCategory ?? "",
+      coverImage: coverImage,
+      description: descriptionController.text,
+      copies: copies,
+      availableCopies: copies,
+      floor: selectedFloor ?? "",
+      section: selectedSection ?? "",
+      rack: selectedRack ?? "",
+      shelf: selectedShelf ?? "",
+      isFavorite: false,
+      createdAt: DateTime.now(),
+    );
+    await BookService.addBook(book);
+    Navigator.pop(context);
+  }
+
+  Future<void> pickCoverImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      Uint8List imageBytes = await image.readAsBytes();
+      setState(() {
+        coverImage = imageBytes;
+      });
+    }
+  }
+
   @override
   void dispose() {
     titleController.dispose();
@@ -57,7 +122,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
             ),
             SizedBox(height: 10),
-            UploadCoverBox(onTap: () {}),
+            UploadCoverBox(onTap: pickCoverImage, image: coverImage),
             SizedBox(height: 12),
             RequiredField(title: "Book Title"),
             SizedBox(height: 5),
@@ -166,7 +231,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         items: racks,
                         onChanged: (value) {
                           setState(() {
-                            selectedShelf = value;
+                            selectedRack = value;
                           });
                         },
                         onAddNew: () {},
@@ -212,7 +277,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         items: shelves,
                         onChanged: (value) {
                           setState(() {
-                            selectedRack = value;
+                            selectedShelf = value;
                           });
                         },
                         onAddNew: () {},
@@ -228,12 +293,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(20),
-          child: BottomButton(
-            onPress: () {
-              Navigator.pop(context);
-            },
-            title: "Save Book",
-          ),
+          child: BottomButton(onPress: saveBook, title: "Save Book"),
         ),
       ),
     );
