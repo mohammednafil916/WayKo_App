@@ -158,12 +158,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RequiredField(title: 'Shelf'),
+                      RequiredField(title: "Rack"),
                       SizedBox(height: 5),
                       BookDropdown(
-                        hint: "Select Shelf",
-                        value: selectedShelf,
-                        items: shelves,
+                        hint: "Select Rack",
+                        value: selectedRack,
+                        items: racks,
                         onChanged: (value) {
                           setState(() {
                             selectedShelf = value;
@@ -204,12 +204,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RequiredField(title: "Rack"),
+                      RequiredField(title: "Shelf"),
                       SizedBox(height: 5),
                       BookDropdown(
-                        hint: "Select Rack",
-                        value: selectedRack,
-                        items: racks,
+                        hint: "Select Shelf",
+                        value: selectedShelf,
+                        items: shelves,
                         onChanged: (value) {
                           setState(() {
                             selectedRack = value;
