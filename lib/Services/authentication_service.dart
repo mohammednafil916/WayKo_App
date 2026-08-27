@@ -1,6 +1,8 @@
 import 'package:wayko/Services/hive_boxes.dart';
 import 'package:wayko/Models/user_model.dart';
+import 'package:wayko/Services/library_arrangement_service.dart';
 import 'package:wayko/Services/session_service.dart';
+
 
 class AuthenticationService {
   Future<bool> register(String username, String email, String password) async {
@@ -21,6 +23,7 @@ class AuthenticationService {
     );
 
     await HiveBoxes.userBox.add(newUser);
+    await LibraryArrangementService.createArrangement(userId);
     return true;
   }
 

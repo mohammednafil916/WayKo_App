@@ -12,15 +12,18 @@ class LibraryArrangementService {
   }
 
   static Future<void> createArrangement(String userId) async {
-    LibraryArrangementModel arrangement = LibraryArrangementModel(
-      userId: userId,
-      categories: [],
-      floors: [],
-      sections: [],
-      racks: [],
-      shelves: [],
-    );
-    await HiveBoxes.arrangementBox.add(arrangement);
+    LibraryArrangementModel? arrangement = getArrangement(userId);
+    if (arrangement == null) {
+      LibraryArrangementModel newArrangement = LibraryArrangementModel(
+        userId: userId,
+        categories: [],
+        floors: [],
+        sections: [],
+        racks: [],
+        shelves: [],
+      );
+      await HiveBoxes.arrangementBox.add(newArrangement);
+    }
   }
 
   static Future<void> addCategory(String userId, String category) async {
@@ -76,5 +79,50 @@ class LibraryArrangementService {
         await arrangement.save();
       }
     }
+  }
+
+  static List<String> getCategories(String userId) {
+    LibraryArrangementModel? arrangement = getArrangement(userId);
+
+    if (arrangement != null) {
+      return arrangement.categories;
+    }
+    return [];
+  }
+
+  static List<String> getFloors(String userId) {
+    LibraryArrangementModel? arrangement = getArrangement(userId);
+
+    if (arrangement != null) {
+      return arrangement.floors;
+    }
+    return [];
+  }
+
+  static List<String> getSections(String userId) {
+    LibraryArrangementModel? arrangement = getArrangement(userId);
+
+    if (arrangement != null) {
+      return arrangement.sections;
+    }
+    return [];
+  }
+
+  static List<String> getRacks(String userId) {
+    LibraryArrangementModel? arrangement = getArrangement(userId);
+
+    if (arrangement != null) {
+      return arrangement.racks;
+    }
+    return [];
+  }
+
+  static List<String> getShelves(String userId) {
+    LibraryArrangementModel? arrangement = getArrangement(userId);
+
+    if (arrangement != null) {
+      return arrangement.shelves;
+    }
+    return [];
   }
 }
