@@ -1,8 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 
 class BookCard extends StatelessWidget {
-  final String image;
+  final Uint8List? image;
   final String title;
   final String author;
   final String category;
@@ -33,12 +34,19 @@ class BookCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(5),
-              child: Image.asset(
-                image,
-                width: 65,
-                height: 90,
-                fit: BoxFit.cover,
-              ),
+              child: image != null
+                  ? Image.memory(
+                      image!,
+                      width: 65,
+                      height: 90,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      width: 65,
+                      height: 90,
+                      color: Colors.grey.shade200,
+                      child: Icon(Icons.book, size: 35, color: Colors.grey),
+                    ),
             ),
             SizedBox(width: 50),
             Column(
