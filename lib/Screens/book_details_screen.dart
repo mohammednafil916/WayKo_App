@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
+import 'package:wayko/Services/book_service.dart';
 import 'package:wayko/widgets/Book%20Details/book_details_header.dart';
 import 'package:wayko/widgets/Book%20Details/book_location_card.dart';
 import 'package:wayko/widgets/Book%20Details/book_stats_card.dart';
 import 'package:wayko/widgets/Book%20Details/book_action_buttons.dart';
+import 'package:wayko/Models/book_model.dart';
 
 class BookDetailsScreen extends StatefulWidget {
-  const BookDetailsScreen({super.key});
+  final BookModel book;
+  const BookDetailsScreen({super.key, required this.book});
 
   @override
   State<BookDetailsScreen> createState() => _BookDetailsScreenState();
 }
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
+  late BookModel book;
+  @override
+  void initState() {
+    super.initState();
+    book = widget.book;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,28 +33,41 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           child: Column(
             children: [
               BookDetailsHeader(
-                image: "assets/images/book1.jpg",
-                title: "title",
-                author: "author",
-                category: "category",
-                isFavorite: true,
+                image: book.coverImage,
+                title: book.title,
+                author: book.author,
+                category: book.category,
+                isFavorite: book.isFavorite,
+                onFavorite: () async {
+                  await BookService.toggleFavorite(book);
+                  setState(() {});
+                },
               ),
               SizedBox(height: 25),
               Row(
                 children: [
-                  BookStatsCard(title: "Total Copies", value: "10"),
+                  BookStatsCard(
+                    title: "Total Copies",
+                    value: book.copies.toString(),
+                  ),
                   SizedBox(width: 30),
-                  BookStatsCard(title: "Borrowed", value: "04"),
+                  BookStatsCard(
+                    title: "Borrowed",
+                    value: (book.copies - book.availableCopies).toString(),
+                  ),
                   SizedBox(width: 30),
-                  BookStatsCard(title: "Available", value: "06"),
+                  BookStatsCard(
+                    title: "Available",
+                    value: book.availableCopies.toString(),
+                  ),
                 ],
               ),
               SizedBox(height: 20),
               BookLocationCard(
-                floor: "floor",
-                section: "section",
-                rack: "rack",
-                shelf: "shelf",
+                floor: book.floor,
+                section: book.section,
+                rack: book.rack,
+                shelf: book.shelf,
               ),
               SizedBox(height: 20),
               Align(
@@ -58,9 +81,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "A heartfelt love story about two people who find love "
-                  "and dream of a beautiful future together. A touching "
-                  "journey of love, loss, and memories that stay forever.",
+                  book.description.isEmpty
+                      ? "No description available"
+                      : book.description,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey,
@@ -91,7 +114,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           padding: EdgeInsets.all(10),
           child: BookActionButtons(
             onBorrow: () {
-              Navigator.pushNamed(context, AppRoutes.borrowBook);
+              Navigator.pushNamed(
+                context,
+                AppRoutes.borrowBook,
+                arguments: book,
+              );
             },
             onEdit: () {},
             onDelete: () {},

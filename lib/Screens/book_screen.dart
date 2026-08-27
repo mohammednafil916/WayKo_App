@@ -123,13 +123,7 @@ class _BookScreenState extends State<BookScreen> {
                   final book = filteredBooks[index];
                   return Padding(
                     padding: const EdgeInsets.all(5),
-                    child: BookCard(
-                      image: book.coverImage,
-                      title: book.title,
-                      author: book.author,
-                      category: book.category,
-                      available: book.availableCopies.toString(),
-                    ),
+                    child: BookCard(book: book),
                   );
                 },
               ),
@@ -201,13 +195,7 @@ class BookSearchDelegate extends SearchDelegate {
 
         return Padding(
           padding: EdgeInsets.all(5),
-          child: BookCard(
-            image: book.coverImage,
-            title: book.title,
-            author: book.author,
-            category: book.category,
-            available: book.availableCopies.toString(),
-          ),
+          child: BookCard(book: book),
         );
       },
     );

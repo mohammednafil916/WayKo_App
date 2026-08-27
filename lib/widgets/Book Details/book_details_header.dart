@@ -1,11 +1,13 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class BookDetailsHeader extends StatelessWidget {
-  final String image;
+  final Uint8List? image;
   final String title;
   final String author;
   final String category;
   final bool isFavorite;
+  final VoidCallback onFavorite;
   const BookDetailsHeader({
     super.key,
     required this.image,
@@ -13,6 +15,7 @@ class BookDetailsHeader extends StatelessWidget {
     required this.author,
     required this.category,
     required this.isFavorite,
+    required this.onFavorite
   });
 
   @override
@@ -27,7 +30,12 @@ class BookDetailsHeader extends StatelessWidget {
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(5),
-            child: Image.asset(image, fit: BoxFit.cover),
+            child: image != null
+                ? Image.memory(image!, fit: BoxFit.cover)
+                : Container(
+                    color: Colors.grey.shade200,
+                    child: Icon(Icons.book, size: 40, color: Colors.grey),
+                  ),
           ),
         ),
         SizedBox(width: 20),
@@ -68,7 +76,7 @@ class BookDetailsHeader extends StatelessWidget {
         ),
         SizedBox(width: 140),
         IconButton(
-          onPressed: () {},
+          onPressed: onFavorite,
           icon: Icon(
             isFavorite ? Icons.star : Icons.star_border,
             color: Colors.orange,

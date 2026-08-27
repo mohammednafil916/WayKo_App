@@ -14,6 +14,7 @@ import 'package:wayko/Screens/profile_screen.dart';
 import 'package:wayko/Screens/add_book_screen.dart';
 import 'package:wayko/Screens/statistics_screen.dart';
 import 'package:wayko/Screens/navigation_screen.dart';
+import 'package:wayko/Models/book_model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -58,7 +59,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => EditBookScreen());
 
       case bookDetails:
-        return MaterialPageRoute(builder: (_) => BookDetailsScreen());
+        final book = settings.arguments as BookModel;
+
+        return MaterialPageRoute(builder: (_) => BookDetailsScreen(book: book));
 
       case borrowBook:
         return MaterialPageRoute(builder: (_) => BorrowBookScreen());
