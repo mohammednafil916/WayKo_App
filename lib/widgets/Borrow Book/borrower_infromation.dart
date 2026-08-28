@@ -3,19 +3,26 @@ import 'package:wayko/widgets/Borrow%20Book/date_input_field.dart';
 import 'package:wayko/widgets/Borrow%20Book/required_field.dart';
 
 class BorrowerInfoCard extends StatefulWidget {
-  const BorrowerInfoCard({super.key});
+  final TextEditingController borrowerNameController;
+  final TextEditingController contactController;
+  final TextEditingController borrowDateController;
+  final TextEditingController returnDateController;
+  final TextEditingController notesController;
+
+  const BorrowerInfoCard({
+    super.key,
+    required this.borrowerNameController,
+    required this.contactController,
+    required this.borrowDateController,
+    required this.returnDateController,
+    required this.notesController,
+  });
 
   @override
   State<BorrowerInfoCard> createState() => _BorrowerInfoCardState();
 }
 
 class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
-  final borrowerNameController = TextEditingController();
-  final contactController = TextEditingController();
-  final borrowDateController = TextEditingController();
-  final returnDateController = TextEditingController();
-  final notesController = TextEditingController();
-
   Future<void> selectDate(TextEditingController controller) async {
     DateTime? date = await showDatePicker(
       context: context,
@@ -27,16 +34,6 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
     if (date != null) {
       controller.text = '${date.day}/${date.month}/${date.year}';
     }
-  }
-
-  @override
-  void dispose() {
-    borrowerNameController.dispose();
-    contactController.dispose();
-    borrowDateController.dispose();
-    returnDateController.dispose();
-    notesController.dispose();
-    super.dispose();
   }
 
   @override
@@ -53,7 +50,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
           RequiredField(title: "Borrower Name"),
           SizedBox(height: 5),
           TextField(
-            controller: borrowerNameController,
+            controller: widget.borrowerNameController,
             decoration: InputDecoration(
               hintText: "Enter borrower name",
               hintStyle: TextStyle(fontSize: 14),
@@ -67,7 +64,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
           RequiredField(title: "Contact"),
           SizedBox(height: 5),
           TextField(
-            controller: contactController,
+            controller: widget.contactController,
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               hintText: "Enter contact number",
@@ -82,20 +79,20 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
           RequiredField(title: "Borrow Date"),
           SizedBox(height: 5),
           DateInputField(
-            controller: borrowDateController,
+            controller: widget.borrowDateController,
             hintText: "Enter or select borrow date",
             onTap: () {
-              selectDate(borrowDateController);
+              selectDate(widget.borrowDateController);
             },
           ),
           SizedBox(height: 12),
           RequiredField(title: "Expected Return Date"),
           SizedBox(height: 5),
           DateInputField(
-            controller: returnDateController,
+            controller: widget.returnDateController,
             hintText: "Enter or select return date",
             onTap: () {
-              selectDate(returnDateController);
+              selectDate(widget.returnDateController);
             },
           ),
           SizedBox(height: 12),
@@ -109,7 +106,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
           ),
           SizedBox(height: 5),
           TextField(
-            controller: notesController,
+            controller: widget.notesController,
             decoration: InputDecoration(
               hintText: "Enter notes (if any)",
               hintStyle: TextStyle(fontSize: 14),

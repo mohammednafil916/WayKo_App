@@ -64,7 +64,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => BookDetailsScreen(book: book));
 
       case borrowBook:
-        return MaterialPageRoute(builder: (_) => BorrowBookScreen());
+        final book = settings.arguments as BookModel;
+        return MaterialPageRoute(builder: (_) => BorrowBookScreen(book: book));
 
       case borrowedBooks:
         return MaterialPageRoute(builder: (_) => BorrowedBooksScreen());
