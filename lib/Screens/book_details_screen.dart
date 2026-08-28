@@ -23,6 +23,37 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     book = widget.book;
   }
 
+  Future<void> deleteBook() async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Delete Book"),
+          content: Text("Are you sure you want to delete this book?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirm != true) {
+      return;
+    }
+    await BookService.deleteBook(book);
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,8 +151,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 arguments: book,
               );
             },
-            onEdit: () {},
-            onDelete: () {},
+            onEdit: () {
+              Navigator.pushNamed(context, AppRoutes.editBook, arguments: book);
+            },
+            onDelete: deleteBook,
           ),
         ),
       ),

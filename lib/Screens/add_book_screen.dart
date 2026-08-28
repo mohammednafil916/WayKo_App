@@ -59,6 +59,78 @@ class _AddBookScreenState extends State<AddBookScreen> {
     });
   }
 
+  Future<void> addNewArrangement(String type) async {
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    String title = type[0].toUpperCase() + type.substring(1);
+    String? value = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        TextEditingController controller = TextEditingController();
+        return AlertDialog(
+          title: Text("Add $title"),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: "Enter $title"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                String newValue = controller.text.trim();
+                if (newValue.isNotEmpty) {
+                  Navigator.pop(context, newValue);
+                }
+              },
+              child: Text(
+                "Add",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (value == null || value.isEmpty) {
+      return;
+    }
+    if (type == "category") {
+      await LibraryArrangementService.addCategory(userId, value);
+    } else if (type == "floor") {
+      await LibraryArrangementService.addFloor(userId, value);
+    } else if (type == "section") {
+      await LibraryArrangementService.addSection(userId, value);
+    } else if (type == "rack") {
+      await LibraryArrangementService.addRack(userId, value);
+    } else if (type == "shelf") {
+      await LibraryArrangementService.addShelf(userId, value);
+    }
+    await loadLibraryArrangements();
+    setState(() {
+      if (type == "category") {
+        selectedCategory = value;
+      } else if (type == "floor") {
+        selectedFloor = value;
+      } else if (type == "section") {
+        selectedSection = value;
+      } else if (type == "rack") {
+        selectedRack = value;
+      } else if (type == "shelf") {
+        selectedShelf = value;
+      }
+    });
+  }
+
   Future<void> saveBook() async {
     String? userId = await SessionService.getLoggedUserId();
     if (userId == null) {
@@ -151,7 +223,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   selectedCategory = value;
                 });
               },
-              onAddNew: () {},
+              onAddNew: () => addNewArrangement("category"),
             ),
             SizedBox(height: 12),
             Text(
@@ -213,7 +285,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             selectedFloor = value;
                           });
                         },
-                        onAddNew: () {},
+                        onAddNew: () => addNewArrangement("floor"),
                       ),
                     ],
                   ),
@@ -234,7 +306,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             selectedRack = value;
                           });
                         },
-                        onAddNew: () {},
+                        onAddNew: () => addNewArrangement("rack"),
                       ),
                     ],
                   ),
@@ -259,7 +331,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             selectedSection = value;
                           });
                         },
-                        onAddNew: () {},
+                        onAddNew: () => addNewArrangement("section"),
                       ),
                     ],
                   ),
@@ -280,7 +352,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             selectedShelf = value;
                           });
                         },
-                        onAddNew: () {},
+                        onAddNew: () => addNewArrangement("shelf"),
                       ),
                     ],
                   ),

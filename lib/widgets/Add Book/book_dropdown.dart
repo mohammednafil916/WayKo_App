@@ -18,44 +18,49 @@ class BookDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String? validValue = value != null && items.contains(value)
+        ? value
+        : null;
     return Container(
       height: 35,
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(5),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: value,
+          value: validValue,
           isExpanded: true,
-          hint: Text(hint, style: TextStyle(fontSize: 11, color: Colors.grey)),
+          hint: Text(
+            hint,
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
           icon: Icon(Icons.keyboard_arrow_down, color: Colors.blue.shade900),
           items: [
             ...items.map((item) {
-              return DropdownMenuItem(
+              return DropdownMenuItem<String>(
                 value: item,
-                child: Text(item, style: TextStyle(fontSize: 11)),
+                child: Text(item, style: const TextStyle(fontSize: 11)),
               );
             }),
-
-            DropdownMenuItem(
+            DropdownMenuItem<String>(
               value: "ADD_NEW",
               child: Text(
                 "+ Add New",
                 style: TextStyle(
-                  color: Colors.blue.shade900,
+                  color: Colors.blue,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ],
-          onChanged: (value) {
-            if (value == "ADD_NEW") {
+          onChanged: (selectedValue) {
+            if (selectedValue == "ADD_NEW") {
               onAddNew();
             } else {
-              onChanged(value);
+              onChanged(selectedValue);
             }
           },
         ),
