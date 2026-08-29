@@ -32,6 +32,7 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
       borrowedBooks = BorrowService.getBorrows(userId);
     });
   }
+
   List<BorrowModel> getFilteredBorrows() {
     if (selectedStatus == "Current") {
       return borrowedBooks
@@ -54,9 +55,11 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
     }
     return [];
   }
+
   String formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }
+
   @override
   Widget build(BuildContext context) {
     List<BorrowModel> filteredBorrows = getFilteredBorrows();
@@ -163,11 +166,9 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
   }
 }
 
-
 class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
   final List<BorrowModel> borrowedBooks;
   final String selectedStatus;
-
   BorrowedBookSearchDelegate({
     required this.borrowedBooks,
     required this.selectedStatus,
@@ -184,6 +185,7 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
         ),
     ];
   }
+
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
@@ -193,16 +195,22 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
       icon: Icon(Icons.arrow_back),
     );
   }
+
   @override
   Widget buildResults(BuildContext context) {
     return buildSearchResults();
   }
+
   @override
   Widget buildSuggestions(BuildContext context) {
     return buildSearchResults();
   }
+
   Widget buildSearchResults() {
     String searchText = query.trim().toLowerCase();
+    if (searchText.isEmpty) {
+      return SizedBox();
+    }
     List<BorrowModel> results = borrowedBooks.where((borrow) {
       if (selectedStatus == "Current" && borrow.status != "active") {
         return false;
@@ -222,6 +230,7 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
       }
       return book.title.toLowerCase().contains(searchText) ||
           book.author.toLowerCase().contains(searchText) ||
+          book.category.toLowerCase().contains(searchText) ||
           borrow.borrowerName.toLowerCase().contains(searchText) ||
           borrow.borrowerContact.toLowerCase().contains(searchText);
     }).toList();
@@ -236,25 +245,25 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
-        BorrowModel borrow = results[index];
+        final borrow = results[index];
         BookModel? book = BookService.getBook(borrow.bookId);
         if (book == null) {
           return SizedBox();
         }
-        return ListTile(
-          leading: book.coverImage != null
-              ? Image.memory(
-                  book.coverImage!,
-                  width: 45,
-                  height: 60,
-                  fit: BoxFit.cover,
-                )
-              : null,
-          title: Text(book.title),
-          subtitle: Text("Borrowed by: ${borrow.borrowerName}"),
-          onTap: () {
-            close(context, borrow);
-          },
+        return Padding(
+          padding: EdgeInsets.all(5),
+          child: BorrowedBookCard(
+            borrow: borrow,
+            image: book.coverImage,
+            title: book.title,
+            author: book.author,
+            category: book.category,
+            borrower: borrow.borrowerName,
+            borrowedDate:
+                "${borrow.borrowDate.day}/${borrow.borrowDate.month}/${borrow.borrowDate.year}",
+            dueDate:
+                "${borrow.returnDate.day}/${borrow.returnDate.month}/${borrow.returnDate.year}",
+          ),
         );
       },
     );

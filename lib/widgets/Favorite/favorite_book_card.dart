@@ -1,8 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
+import 'package:wayko/Models/book_model.dart';
 
 class FavoriteBookCard extends StatelessWidget {
-  final String image;
+  final BookModel book;
+  final Uint8List? image;
   final String title;
   final String author;
   final String category;
@@ -13,6 +16,7 @@ class FavoriteBookCard extends StatelessWidget {
   final String available;
   const FavoriteBookCard({
     super.key,
+    required this.book,
     required this.image,
     required this.title,
     required this.author,
@@ -27,8 +31,12 @@ class FavoriteBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, AppRoutes.bookDetails);
+      onTap: () async {
+        await Navigator.pushNamed(
+          context,
+          AppRoutes.bookDetails,
+          arguments: book,
+        );
       },
       borderRadius: BorderRadius.circular(5),
       child: Container(
@@ -41,12 +49,19 @@ class FavoriteBookCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(5),
-              child: Image.asset(
-                image,
-                width: 65,
-                height: 90,
-                fit: BoxFit.cover,
-              ),
+              child: image != null
+                  ? Image.memory(
+                      image!,
+                      width: 65,
+                      height: 90,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      width: 65,
+                      height: 90,
+                      color: Colors.grey.shade200,
+                      child: Icon(Icons.book, color: Colors.grey),
+                    ),
             ),
             SizedBox(width: 20),
             Expanded(
@@ -101,7 +116,7 @@ class FavoriteBookCard extends StatelessWidget {
             SizedBox(width: 10),
             Column(
               children: [
-                Icon(Icons.star_border, size: 22, color: Colors.blue),
+                Icon(Icons.star, size: 22, color: Colors.blue),
                 SizedBox(height: 8),
                 Row(
                   children: [

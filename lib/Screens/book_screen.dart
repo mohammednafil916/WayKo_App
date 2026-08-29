@@ -145,20 +145,19 @@ class _BookScreenState extends State<BookScreen> {
   }
 }
 
-class BookSearchDelegate extends SearchDelegate {
+class BookSearchDelegate extends SearchDelegate<BookModel?> {
   final List<BookModel> books;
-
   BookSearchDelegate(this.books);
-
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
-      IconButton(
-        onPressed: () {
-          query = "";
-        },
-        icon: Icon(Icons.clear),
-      ),
+      if (query.isNotEmpty)
+        IconButton(
+          onPressed: () {
+            query = "";
+          },
+          icon: Icon(Icons.clear),
+        ),
     ];
   }
 
@@ -174,11 +173,24 @@ class BookSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    final results = books.where((book) {
-      return book.title.toLowerCase().contains(query.toLowerCase()) ||
-          book.author.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+    return buildSearchResults();
+  }
 
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return buildSearchResults();
+  }
+
+  Widget buildSearchResults() {
+    String searchText = query.trim().toLowerCase();
+    if (searchText.isEmpty) {
+      return SizedBox();
+    }
+    List<BookModel> results = books.where((book) {
+      return book.title.toLowerCase().contains(searchText) ||
+          book.author.toLowerCase().contains(searchText) ||
+          book.category.toLowerCase().contains(searchText);
+    }).toList();
     if (results.isEmpty) {
       return Center(
         child: Text(
@@ -187,39 +199,13 @@ class BookSearchDelegate extends SearchDelegate {
         ),
       );
     }
-
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
         final book = results[index];
-
         return Padding(
           padding: EdgeInsets.all(5),
           child: BookCard(book: book),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestions = books.where((book) {
-      return book.title.toLowerCase().contains(query.toLowerCase()) ||
-          book.author.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final book = suggestions[index];
-
-        return ListTile(
-          title: Text(book.title),
-          subtitle: Text(book.author),
-          onTap: () {
-            query = book.title;
-            showResults(context);
-          },
         );
       },
     );
