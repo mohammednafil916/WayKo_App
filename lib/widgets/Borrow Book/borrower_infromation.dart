@@ -23,11 +23,26 @@ class BorrowerInfoCard extends StatefulWidget {
 }
 
 class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
-  Future<void> selectDate(TextEditingController controller) async {
+  Future<void> selectDate(
+    TextEditingController controller, {
+    bool isReturnDate = false,
+  }) async {
+    DateTime initialDate = DateTime.now();
+    DateTime firstDate = DateTime(2020);
+    if (isReturnDate && widget.borrowDateController.text.trim().isNotEmpty) {
+      List<String> parts = widget.borrowDateController.text.split("/");
+      DateTime borrowDate = DateTime(
+        int.parse(parts[2]),
+        int.parse(parts[1]),
+        int.parse(parts[0]),
+      );
+      firstDate = borrowDate;
+      initialDate = borrowDate;
+    }
     DateTime? date = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime(2030),
     );
     if (date != null) {
@@ -91,7 +106,7 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
             controller: widget.returnDateController,
             hintText: "Enter or select return date",
             onTap: () {
-              selectDate(widget.returnDateController);
+              selectDate(widget.returnDateController, isReturnDate: true);
             },
           ),
           SizedBox(height: 12),

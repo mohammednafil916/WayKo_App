@@ -29,6 +29,12 @@ class BorrowService {
     await borrow.save();
   }
 
+  static Future<void> returnBook(BorrowModel borrow) async {
+    borrow.status = "returned";
+    borrow.actualReturnDate = DateTime.now();
+    await borrow.save();
+  }
+
   static Future<void> deleteBorrow(BorrowModel borrow) async {
     await borrow.delete();
   }

@@ -55,8 +55,7 @@ class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
     }
     book.availableCopies++;
     await BookService.updateBook(book);
-    widget.borrow.status = "returned";
-    await BorrowService.updateBorrow(widget.borrow);
+    await BorrowService.returnBook(widget.borrow);
     if (!mounted) return;
     Navigator.pop(context);
   }

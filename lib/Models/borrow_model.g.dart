@@ -26,13 +26,14 @@ class BorrowModelAdapter extends TypeAdapter<BorrowModel> {
       returnDate: fields[6] as DateTime,
       status: fields[7] as String,
       notes: fields[8] as String,
+      actualReturnDate: fields[9] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, BorrowModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class BorrowModelAdapter extends TypeAdapter<BorrowModel> {
       ..writeByte(7)
       ..write(obj.status)
       ..writeByte(8)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(9)
+      ..write(obj.actualReturnDate);
   }
 
   @override
