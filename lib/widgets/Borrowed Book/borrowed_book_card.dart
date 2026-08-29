@@ -1,8 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
+import 'package:wayko/Models/borrow_model.dart';
 
 class BorrowedBookCard extends StatelessWidget {
-  final String image;
+  final BorrowModel borrow;
+  final Uint8List? image;
   final String title;
   final String author;
   final String category;
@@ -12,6 +15,7 @@ class BorrowedBookCard extends StatelessWidget {
 
   const BorrowedBookCard({
     super.key,
+    required this.borrow,
     required this.image,
     required this.title,
     required this.author,
@@ -25,7 +29,11 @@ class BorrowedBookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.borrowedBookDetails);
+        Navigator.pushNamed(
+          context,
+          AppRoutes.borrowedBookDetails,
+          arguments: borrow,
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -35,7 +43,16 @@ class BorrowedBookCard extends StatelessWidget {
         padding: EdgeInsets.all(10),
         child: Row(
           children: [
-            Image.asset(image, width: 55, height: 80, fit: BoxFit.cover),
+            if (image != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: Image.memory(
+                  image!,
+                  width: 55,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
+              ),
             SizedBox(width: 30),
             Expanded(
               child: Row(
@@ -67,7 +84,6 @@ class BorrowedBookCard extends StatelessWidget {
                   SizedBox(width: 30),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
                         "Borrowed by",

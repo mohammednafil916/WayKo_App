@@ -9,12 +9,14 @@ import 'package:wayko/Screens/login_screen.dart';
 import 'package:wayko/Screens/register_screen.dart';
 import 'package:wayko/Screens/book_screen.dart';
 import 'package:wayko/Screens/borrowed_books_screen.dart';
+import 'package:wayko/Screens/edit_borrow_screen.dart';
 import 'package:wayko/Screens/favorites_screen.dart';
 import 'package:wayko/Screens/profile_screen.dart';
 import 'package:wayko/Screens/add_book_screen.dart';
 import 'package:wayko/Screens/statistics_screen.dart';
 import 'package:wayko/Screens/navigation_screen.dart';
 import 'package:wayko/Models/book_model.dart';
+import 'package:wayko/Models/borrow_model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -28,6 +30,7 @@ class AppRoutes {
   static const String bookDetails = '/book-details';
   static const String borrowedBooks = '/borrowed-books';
   static const String borrowedBookDetails = '/borrowed-book-details';
+  static const String editBorrow = '/edit-borrow';
   static const String borrowBook = '/borrow-book';
   static const String statistics = '/statistics';
   static const String navigation = '/navigation';
@@ -71,7 +74,16 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => BorrowedBooksScreen());
 
       case borrowedBookDetails:
-        return MaterialPageRoute(builder: (_) => BorrowedBookDetailsScreen());
+        final borrow = settings.arguments as BorrowModel;
+        return MaterialPageRoute(
+          builder: (_) => BorrowedBookDetailsScreen(borrow: borrow),
+        );
+
+      case editBorrow:
+        final borrow = settings.arguments as BorrowModel;
+        return MaterialPageRoute(
+          builder: (_) => EditBorrowScreen(borrow: borrow),
+        );
 
       case statistics:
         return MaterialPageRoute(builder: (_) => StatisticsScreen());

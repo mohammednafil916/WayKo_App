@@ -1,10 +1,12 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class BorrowedBookHeader extends StatelessWidget {
-  final String image;
+  final Uint8List? image;
   final String title;
   final String author;
   final String category;
+
   const BorrowedBookHeader({
     super.key,
     required this.image,
@@ -18,13 +20,18 @@ class BorrowedBookHeader extends StatelessWidget {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50,vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: SizedBox(
             height: 150,
             width: 100,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset(image, fit: BoxFit.cover),
+              child: image != null
+                  ? Image.memory(image!, fit: BoxFit.cover)
+                  : Container(
+                      color: Colors.grey.shade200,
+                      child: Icon(Icons.book, size: 40, color: Colors.grey),
+                    ),
             ),
           ),
         ),

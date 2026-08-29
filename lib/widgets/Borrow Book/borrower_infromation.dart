@@ -30,7 +30,6 @@ class _BorrowerInfoCardState extends State<BorrowerInfoCard> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     );
-
     if (date != null) {
       controller.text = '${date.day}/${date.month}/${date.year}';
     }
