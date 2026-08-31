@@ -6,7 +6,6 @@ import 'package:wayko/Models/user_model.dart';
 import 'package:wayko/Services/hive_boxes.dart';
 import 'package:wayko/Services/session_service.dart';
 import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/borrow_service.dart';
 import 'package:wayko/Models/book_model.dart';
 
 class ProfileScreen extends StatefulWidget {

@@ -15,15 +15,15 @@ class NavigationScreen extends StatefulWidget {
 
 class _NavigationScreenState extends State<NavigationScreen> {
   int selectedIndex = 0;
-
   late final List<Widget> screens;
-
+  final GlobalKey<HomeScreenState> homeKey = GlobalKey<HomeScreenState>();
   @override
   void initState() {
     super.initState();
 
     screens = [
       HomeScreen(
+        key: homeKey,
         onViewAllBooks: () {
           setState(() {
             selectedIndex = 1;
@@ -42,12 +42,17 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: screens[selectedIndex],
+
       bottomNavigationBar: BottomNavBar(
         selectedIndex: selectedIndex,
         oneItemSelected: (index) {
           setState(() {
             selectedIndex = index;
           });
+
+          if (index == 0) {
+            homeKey.currentState?.refreshHome();
+          }
         },
       ),
     );

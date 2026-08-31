@@ -6,23 +6,36 @@ import 'package:wayko/widgets/Home/recently_book_card.dart';
 import 'package:wayko/Models/user_model.dart';
 import 'package:wayko/Services/hive_boxes.dart';
 import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/Models/book_model.dart';
+import 'package:wayko/Services/book_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onViewAllBooks;
+
   const HomeScreen({super.key, required this.onViewAllBooks});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   UserModel? user;
+  int totalBooks = 0;
+  int availableBooks = 0;
+  int borrowedBooks = 0;
+  int favoriteBooks = 0;
+  List<BookModel> recentlyAddedBooks = [];
+
+  void refreshHome() {
+    loadUser();
+    loadStatistics();
+  }
 
   @override
   void initState() {
     super.initState();
-
     loadUser();
+    loadStatistics();
   }
 
   Future<void> loadUser() async {
@@ -35,6 +48,34 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       }
     }
+  }
+
+  Future<void> loadStatistics() async {
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    List<BookModel> books = BookService.getBooks(userId);
+    books.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    List<BookModel> recentBooks = books.take(3).toList();
+    int total = 0;
+    int available = 0;
+    int favorites = 0;
+    for (BookModel book in books) {
+      total += book.copies;
+      available += book.availableCopies;
+      if (book.isFavorite) {
+        favorites++;
+      }
+    }
+    int borrowed = total - available;
+    setState(() {
+      totalBooks = total;
+      availableBooks = available;
+      borrowedBooks = borrowed;
+      favoriteBooks = favorites;
+      recentlyAddedBooks = recentBooks;
+    });
   }
 
   @override
@@ -81,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Total Books",
-                      value: "1,250",
+                      value: "$totalBooks",
                       icon: Icons.library_books,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 179, 231, 255),
@@ -91,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Available Books",
-                      value: "1,100 ",
+                      value: "$availableBooks",
                       icon: Icons.book,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 213, 245, 177),
@@ -105,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Borrowed Books",
-                      value: "150",
+                      value: "$borrowedBooks",
                       icon: Icons.person,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 255, 184, 179),
@@ -115,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Favorites",
-                      value: "150",
+                      value: "$favoriteBooks",
                       icon: Icons.star_border,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 179, 231, 255),
@@ -161,26 +202,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RecentlyBookCard(
-                        image: "assets/images/book1.jpg",
-                        title: "title",
-                        category: "category",
-                      ),
-                      RecentlyBookCard(
-                        image: "assets/images/book2.jpg",
-                        title: "title",
-                        category: "category",
-                      ),
-                      RecentlyBookCard(
-                        image: "assets/images/book3.jpg",
-                        title: "title",
-                        category: "category",
-                      ),
-                    ],
-                  ),
+                  recentlyAddedBooks.isEmpty
+                      ? Center(
+                          child: Text(
+                            "No books added yet",
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: recentlyAddedBooks.map((book) {
+                            return RecentlyBookCard(
+                              image: book.coverImage,
+                              title: book.title,
+                              category: book.category,
+                            );
+                          }).toList(),
+                        ),
                 ],
               ),
             ],
