@@ -35,23 +35,21 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
 
   List<BorrowModel> getFilteredBorrows() {
     if (selectedStatus == "Current") {
-      return borrowedBooks
-          .where((borrow) => borrow.status == "active")
-          .toList();
+      return borrowedBooks.where((borrow) {
+        return borrow.status == "active" &&
+            !borrow.returnDate.isBefore(DateTime.now());
+      }).toList();
     }
     if (selectedStatus == "Returned") {
-      return borrowedBooks
-          .where((borrow) => borrow.status == "returned")
-          .toList();
+      return borrowedBooks.where((borrow) {
+        return borrow.status == "returned";
+      }).toList();
     }
     if (selectedStatus == "Overdue") {
-      return borrowedBooks
-          .where(
-            (borrow) =>
-                borrow.status == "active" &&
-                borrow.returnDate.isBefore(DateTime.now()),
-          )
-          .toList();
+      return borrowedBooks.where((borrow) {
+        return borrow.status == "active" &&
+            borrow.returnDate.isBefore(DateTime.now());
+      }).toList();
     }
     return [];
   }
@@ -139,12 +137,15 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
                       itemCount: filteredBorrows.length,
                       itemBuilder: (context, index) {
                         final borrow = filteredBorrows[index];
+
                         BookModel? book = BookService.getBook(borrow.bookId);
+
                         if (book == null) {
                           return SizedBox();
                         }
+
                         return Padding(
-                          padding: const EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
                           child: BorrowedBookCard(
                             borrow: borrow,
                             image: book.coverImage,
@@ -212,11 +213,16 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
       return SizedBox();
     }
     List<BorrowModel> results = borrowedBooks.where((borrow) {
-      if (selectedStatus == "Current" && borrow.status != "active") {
-        return false;
+      if (selectedStatus == "Current") {
+        if (borrow.status != "active" ||
+            borrow.returnDate.isBefore(DateTime.now())) {
+          return false;
+        }
       }
-      if (selectedStatus == "Returned" && borrow.status != "returned") {
-        return false;
+      if (selectedStatus == "Returned") {
+        if (borrow.status != "returned") {
+          return false;
+        }
       }
       if (selectedStatus == "Overdue") {
         if (borrow.status != "active" ||

@@ -4,6 +4,7 @@ import 'package:wayko/widgets/Book/book_card.dart';
 import 'package:wayko/Models/book_model.dart';
 import 'package:wayko/Services/session_service.dart';
 import 'package:wayko/Services/book_service.dart';
+import 'package:wayko/Services/library_arrangement_service.dart';
 
 class BookScreen extends StatefulWidget {
   const BookScreen({super.key});
@@ -13,17 +14,9 @@ class BookScreen extends StatefulWidget {
 }
 
 class _BookScreenState extends State<BookScreen> {
-  final List<String> categories = [
-    "All",
-    "Science",
-    "Technology",
-    "Fiction",
-    "History",
-  ];
-
+  List<String> categories = ["All"];
   String selectedCategory = "All";
   List<BookModel> books = [];
-
   List<BookModel> get filteredBooks {
     if (selectedCategory == "All") {
       return books;
@@ -35,6 +28,7 @@ class _BookScreenState extends State<BookScreen> {
   void initState() {
     super.initState();
     loadBooks();
+    loadCategories();
   }
 
   Future<void> loadBooks() async {
@@ -44,6 +38,22 @@ class _BookScreenState extends State<BookScreen> {
     }
     setState(() {
       books = BookService.getBooks(userId);
+    });
+  }
+
+  Future<void> loadCategories() async {
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    List<String> hiveCategories = LibraryArrangementService.getCategories(
+      userId,
+    );
+    setState(() {
+      categories = ["All", ...hiveCategories];
+      if (!categories.contains(selectedCategory)) {
+        selectedCategory = "All";
+      }
     });
   }
 
@@ -117,16 +127,25 @@ class _BookScreenState extends State<BookScreen> {
             ),
             SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredBooks.length,
-                itemBuilder: (context, index) {
-                  final book = filteredBooks[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: BookCard(book: book),
-                  );
-                },
-              ),
+              child: filteredBooks.isEmpty
+                  ? Center(
+                      child: Text(
+                        selectedCategory == "All"
+                            ? "No books available"
+                            : "No books in this category",
+                        style: TextStyle(color: Colors.grey, fontSize: 15),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredBooks.length,
+                      itemBuilder: (context, index) {
+                        final book = filteredBooks[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: BookCard(book: book),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -138,6 +157,7 @@ class _BookScreenState extends State<BookScreen> {
         onPressed: () async {
           await Navigator.pushNamed(context, AppRoutes.addBook);
           loadBooks();
+          loadCategories();
         },
         child: Icon(Icons.add, color: Colors.black),
       ),
