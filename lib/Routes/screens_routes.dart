@@ -12,6 +12,9 @@ import 'package:wayko/Screens/borrowed_books_screen.dart';
 import 'package:wayko/Screens/edit_borrow_screen.dart';
 import 'package:wayko/Screens/favorites_screen.dart';
 import 'package:wayko/Screens/profile_screen.dart';
+import 'package:wayko/Screens/edit_profile_screen.dart';
+import 'package:wayko/Screens/edit_password_screen.dart';
+import 'package:wayko/Screens/wayko_about_screen.dart';
 import 'package:wayko/Screens/add_book_screen.dart';
 import 'package:wayko/Screens/statistics_screen.dart';
 import 'package:wayko/Screens/navigation_screen.dart';
@@ -25,6 +28,9 @@ class AppRoutes {
   static const String books = '/books';
   static const String favorites = '/favorites';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
+  static const String editPassword = '/edit-password';
+  static const String wayKoAbout = '/wayko-about';
   static const String addBook = '/add-book';
   static const String editBook = '/edit-book';
   static const String bookDetails = '/book-details';
@@ -54,6 +60,15 @@ class AppRoutes {
 
       case profile:
         return MaterialPageRoute(builder: (_) => ProfileScreen());
+
+      case editProfile:
+        return MaterialPageRoute(builder: (_) => EditProfileScreen());
+
+      case editPassword:
+        return MaterialPageRoute(builder: (_) => EditPasswordScreen());
+
+      case wayKoAbout:
+        return MaterialPageRoute(builder: (_) => WayKoAboutScreen());
 
       case addBook:
         return MaterialPageRoute(builder: (_) => AddBookScreen());

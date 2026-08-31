@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 
 class ProfileAnalysisCard extends StatelessWidget {
-  const ProfileAnalysisCard({super.key});
+  final int totalBooks;
+  final int availableBooks;
+  final int borrowedBooks;
+  final int favoriteBooks;
+
+  const ProfileAnalysisCard({
+    super.key,
+    required this.totalBooks,
+    required this.availableBooks,
+    required this.borrowedBooks,
+    required this.favoriteBooks,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +29,17 @@ class ProfileAnalysisCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  "1,250",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  "$totalBooks",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 3),
-                Text("Total Books", style: TextStyle(fontSize: 10)),
+                Text(
+                  "Total Books",
+                  style: TextStyle(fontSize: 10),
+                ),
               ],
             ),
           ),
@@ -31,11 +48,17 @@ class ProfileAnalysisCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  "1,100",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  "$availableBooks",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 3),
-                Text("Available", style: TextStyle(fontSize: 10)),
+                Text(
+                  "Available",
+                  style: TextStyle(fontSize: 10),
+                ),
               ],
             ),
           ),
@@ -44,11 +67,17 @@ class ProfileAnalysisCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  "150",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  "$borrowedBooks",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 3),
-                Text("Borrowed", style: TextStyle(fontSize: 10)),
+                Text(
+                  "Borrowed",
+                  style: TextStyle(fontSize: 10),
+                ),
               ],
             ),
           ),
@@ -57,11 +86,17 @@ class ProfileAnalysisCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  "08",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  "$favoriteBooks",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 3),
-                Text("Favorites", style: TextStyle(fontSize: 10)),
+                Text(
+                  "Favorites",
+                  style: TextStyle(fontSize: 10),
+                ),
               ],
             ),
           ),

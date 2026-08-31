@@ -5,6 +5,9 @@ import 'package:wayko/widgets/Profile/profile_action_card.dart';
 import 'package:wayko/Models/user_model.dart';
 import 'package:wayko/Services/hive_boxes.dart';
 import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/Services/book_service.dart';
+import 'package:wayko/Services/borrow_service.dart';
+import 'package:wayko/Models/book_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,16 +18,23 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? user;
+  int totalBooks = 0;
+  int availableBooks = 0;
+  int borrowedBooks = 0;
+  int favoriteBooks = 0;
 
   @override
   void initState() {
     super.initState();
-
     loadUser();
+    loadStatistics();
   }
 
   Future<void> loadUser() async {
     String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
     for (UserModel currentUser in HiveBoxes.userBox.values) {
       if (currentUser.id == userId) {
         setState(() {
@@ -33,6 +43,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
         break;
       }
     }
+  }
+
+  Future<void> loadStatistics() async {
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    List<BookModel> books = BookService.getBooks(userId);
+    int total = 0;
+    int available = 0;
+    int favorites = 0;
+    for (BookModel book in books) {
+      total += book.copies;
+      available += book.availableCopies;
+
+      if (book.isFavorite) {
+        favorites++;
+      }
+    }
+    int borrowed = total - available;
+    setState(() {
+      totalBooks = total;
+      availableBooks = available;
+      borrowedBooks = borrowed;
+      favoriteBooks = favorites;
+    });
   }
 
   @override
@@ -83,19 +119,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              ProfileAnalysisCard(),
-
+              ProfileAnalysisCard(
+                totalBooks: totalBooks,
+                availableBooks: availableBooks,
+                borrowedBooks: borrowedBooks,
+                favoriteBooks: favoriteBooks,
+              ),
               SizedBox(height: 20),
-              ProfileActionCard(icon: Icons.person, title: "Edit Profile"),
+              ProfileActionCard(
+                icon: Icons.person,
+                title: "Edit Profile",
+                onTap: () async {
+                  final result = await Navigator.pushNamed(
+                    context,
+                    AppRoutes.editProfile,
+                  );
+                  if (result == true) {
+                    loadUser();
+                  }
+                },
+              ),
               SizedBox(height: 5),
-              ProfileActionCard(icon: Icons.lock, title: "Edit Password"),
+              ProfileActionCard(
+                icon: Icons.lock,
+                title: "Edit Password",
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.editPassword);
+                },
+              ),
               SizedBox(height: 5),
               ProfileActionCard(
                 icon: Icons.info_outline_rounded,
                 title: "About WayKo",
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.wayKoAbout);
+                },
               ),
               SizedBox(height: 10),
-
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
