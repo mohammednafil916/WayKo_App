@@ -30,8 +30,18 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    if (!email.endsWith("@gmail.com")) {
-      email = "$email@gmail.com";
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$').hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a valid Gmail address")),
+      );
+      return;
+    }
+
+    if (password.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password must be at least 8 characters")),
+      );
+      return;
     }
 
     bool success = await authenticationService.login(email, password);
@@ -41,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Invalid username or password")));
+      ).showSnackBar(SnackBar(content: Text("Invalid email or password")));
     }
   }
 

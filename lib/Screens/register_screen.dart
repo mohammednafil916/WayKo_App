@@ -37,15 +37,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Password do not match")));
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$').hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a valid Gmail address")),
+      );
       return;
     }
 
-    if (!email.endsWith("@gmail.com")) {
-      email = "$email@gmail.com";
+    if (password.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password must be at least 8 characters")),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Passwords do not match")));
+      return;
     }
 
     bool success = await authenticationService.register(
@@ -57,12 +67,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!success) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("This email is already existing")));
+      ).showSnackBar(SnackBar(content: Text("This email already exists")));
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Your account created successfully")),
+      SnackBar(content: Text("Your account was created successfully")),
     );
 
     Navigator.pushReplacementNamed(context, AppRoutes.login);
