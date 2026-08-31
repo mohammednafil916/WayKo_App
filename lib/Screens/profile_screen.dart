@@ -148,6 +148,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 5),
               ProfileActionCard(
+                icon: Icons.bar_chart,
+                title: "View Statistics",
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.statistics);
+                },
+              ),
+              SizedBox(height: 5),
+              ProfileActionCard(
                 icon: Icons.info_outline_rounded,
                 title: "About WayKo",
                 onTap: () {
