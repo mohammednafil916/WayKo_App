@@ -16,9 +16,9 @@ class BookService {
     return books;
   }
 
-  static BookModel? getBook(String bookId) {
+  static BookModel? getBook(String bookId, String userId) {
     for (var book in HiveBoxes.bookBox.values) {
-      if (book.id == bookId) {
+      if (book.id == bookId && book.userId == userId) {
         return book;
       }
     }

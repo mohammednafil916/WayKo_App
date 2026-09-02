@@ -1,15 +1,12 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:wayko/widgets/Add Book/book_copies_counter.dart';
 import 'package:wayko/widgets/Add Book/book_dropdown.dart';
 import 'package:wayko/widgets/Add Book/book_text_field.dart';
 import 'package:wayko/widgets/Add Book/upload_cover_box.dart';
 import 'package:wayko/widgets/Borrow%20Book/required_field.dart';
 import 'package:wayko/widgets/bottom_button.dart';
-
 import 'package:wayko/Services/session_service.dart';
 import 'package:wayko/Services/library_arrangement_service.dart';
 import 'package:wayko/Services/book_service.dart';
@@ -118,39 +115,38 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Future<void> updateBook() async {
-  String? userId = await SessionService.getLoggedUserId();
-  if (userId == null) {
-    return;
-  }
-  BookModel updatedBook = widget.book;
+    String? userId = await SessionService.getLoggedUserId();
+    if (userId == null) {
+      return;
+    }
+    BookModel updatedBook = widget.book;
 
-  updatedBook.title = titleController.text.trim();
-  updatedBook.author = authorController.text.trim();
-  updatedBook.description = descriptionController.text.trim();
-  updatedBook.category = selectedCategory ?? "";
-  updatedBook.coverImage = coverImage;
-  int borrowedCopies =
-      widget.book.copies - widget.book.availableCopies;
-  if (copies < borrowedCopies) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Cannot reduce copies below borrowed copies ($borrowedCopies).",
+    updatedBook.title = titleController.text.trim();
+    updatedBook.author = authorController.text.trim();
+    updatedBook.description = descriptionController.text.trim();
+    updatedBook.category = selectedCategory ?? "";
+    updatedBook.coverImage = coverImage;
+    int borrowedCopies = widget.book.copies - widget.book.availableCopies;
+    if (copies < borrowedCopies) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Cannot reduce copies below borrowed copies ($borrowedCopies).",
+          ),
         ),
-      ),
-    );
-    return;
-  }
-  updatedBook.copies = copies;
-  updatedBook.availableCopies = copies - borrowedCopies;
-  updatedBook.floor = selectedFloor ?? "";
-  updatedBook.section = selectedSection ?? "";
-  updatedBook.rack = selectedRack ?? "";
-  updatedBook.shelf = selectedShelf ?? "";
+      );
+      return;
+    }
+    updatedBook.copies = copies;
+    updatedBook.availableCopies = copies - borrowedCopies;
+    updatedBook.floor = selectedFloor ?? "";
+    updatedBook.section = selectedSection ?? "";
+    updatedBook.rack = selectedRack ?? "";
+    updatedBook.shelf = selectedShelf ?? "";
 
-  await BookService.updateBook(updatedBook);
-  Navigator.pop(context);
-}
+    await BookService.updateBook(updatedBook);
+    Navigator.pop(context);
+  }
 
   @override
   void dispose() {

@@ -47,7 +47,7 @@ class BookCard extends StatelessWidget {
               children: [
                 Text(
                   book.title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 3),
                 Text(

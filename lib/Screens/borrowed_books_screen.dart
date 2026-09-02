@@ -16,6 +16,7 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
   final List<String> statuses = ["Current", "Returned", "Overdue"];
   String selectedStatus = "Current";
   List<BorrowModel> borrowedBooks = [];
+  String? loggedUserId;
 
   @override
   void initState() {
@@ -29,6 +30,7 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
       return;
     }
     setState(() {
+      loggedUserId = userId;
       borrowedBooks = BorrowService.getBorrows(userId);
     });
   }
@@ -73,6 +75,7 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
                 delegate: BorrowedBookSearchDelegate(
                   borrowedBooks: borrowedBooks,
                   selectedStatus: selectedStatus,
+                  userId: loggedUserId!,
                 ),
               );
             },
@@ -138,7 +141,10 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
                       itemBuilder: (context, index) {
                         final borrow = filteredBorrows[index];
 
-                        BookModel? book = BookService.getBook(borrow.bookId);
+                        BookModel? book = BookService.getBook(
+                          borrow.bookId,
+                          loggedUserId!,
+                        );
 
                         if (book == null) {
                           return SizedBox();
@@ -170,9 +176,12 @@ class _BorrowedBooksScreenState extends State<BorrowedBooksScreen> {
 class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
   final List<BorrowModel> borrowedBooks;
   final String selectedStatus;
+  final String userId;
+
   BorrowedBookSearchDelegate({
     required this.borrowedBooks,
     required this.selectedStatus,
+    required this.userId,
   });
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -230,7 +239,7 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
           return false;
         }
       }
-      BookModel? book = BookService.getBook(borrow.bookId);
+      BookModel? book = BookService.getBook(borrow.bookId, userId);
       if (book == null) {
         return false;
       }
@@ -252,7 +261,7 @@ class BorrowedBookSearchDelegate extends SearchDelegate<BorrowModel?> {
       itemCount: results.length,
       itemBuilder: (context, index) {
         final borrow = results[index];
-        BookModel? book = BookService.getBook(borrow.bookId);
+        BookModel? book = BookService.getBook(borrow.bookId, userId);
         if (book == null) {
           return SizedBox();
         }

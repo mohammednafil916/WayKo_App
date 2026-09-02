@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/Services/book_service.dart';
+import 'package:wayko/Services/session_service.dart';
 import 'package:wayko/widgets/Book%20Details/book_details_header.dart';
 import 'package:wayko/widgets/Book%20Details/book_location_card.dart';
 import 'package:wayko/widgets/Book%20Details/book_stats_card.dart';
@@ -9,6 +10,7 @@ import 'package:wayko/Models/book_model.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final BookModel book;
+
   const BookDetailsScreen({super.key, required this.book});
 
   @override
@@ -17,10 +19,28 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   late BookModel book;
+
   @override
   void initState() {
     super.initState();
     book = widget.book;
+    refreshBook();
+  }
+
+  Future<void> refreshBook() async {
+    String? userId = await SessionService.getLoggedUserId();
+
+    if (userId == null) {
+      return;
+    }
+
+    BookModel? updatedBook = BookService.getBook(widget.book.id, userId);
+    if (!mounted) return;
+    if (updatedBook != null) {
+      setState(() {
+        book = updatedBook;
+      });
+    }
   }
 
   Future<void> deleteBook() async {
@@ -47,17 +67,30 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         );
       },
     );
+
     if (confirm != true) {
       return;
     }
     await BookService.deleteBook(book);
-    Navigator.pop(context);
+    if (!mounted) return;
+    Navigator.pop(context, true);
+  }
+
+  Future<void> openEditBook() async {
+    await Navigator.pushNamed(context, AppRoutes.editBook, arguments: book);
+    await refreshBook();
+  }
+
+  Future<void> openBorrowBook() async {
+    await Navigator.pushNamed(context, AppRoutes.borrowBook, arguments: book);
+    await refreshBook();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Book Details")),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -71,36 +104,47 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 isFavorite: book.isFavorite,
                 onFavorite: () async {
                   await BookService.toggleFavorite(book);
-                  setState(() {});
+
+                  await refreshBook();
                 },
               ),
+
               SizedBox(height: 25),
+
               Row(
                 children: [
                   BookStatsCard(
                     title: "Total Copies",
                     value: book.copies.toString(),
                   ),
+
                   SizedBox(width: 30),
+
                   BookStatsCard(
                     title: "Borrowed",
                     value: (book.copies - book.availableCopies).toString(),
                   ),
+
                   SizedBox(width: 30),
+
                   BookStatsCard(
                     title: "Available",
                     value: book.availableCopies.toString(),
                   ),
                 ],
               ),
+
               SizedBox(height: 20),
+
               BookLocationCard(
                 floor: book.floor,
                 section: book.section,
                 rack: book.rack,
                 shelf: book.shelf,
               ),
+
               SizedBox(height: 20),
+
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -108,7 +152,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
+
               SizedBox(height: 8),
+
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -122,6 +168,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ),
                 ),
               ),
+
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
@@ -140,20 +187,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ),
       ),
+
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: BookActionButtons(
-            onBorrow: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.borrowBook,
-                arguments: book,
-              );
-            },
-            onEdit: () {
-              Navigator.pushNamed(context, AppRoutes.editBook, arguments: book);
-            },
+            onBorrow: openBorrowBook,
+            onEdit: openEditBook,
             onDelete: deleteBook,
           ),
         ),

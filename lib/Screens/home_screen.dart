@@ -20,31 +20,40 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   UserModel? user;
+
   int totalBooks = 0;
   int availableBooks = 0;
   int borrowedBooks = 0;
   int favoriteBooks = 0;
+
   List<BookModel> recentlyAddedBooks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    refreshHome();
+  }
 
   void refreshHome() {
     loadUser();
     loadStatistics();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-    loadStatistics();
-  }
-
   Future<void> loadUser() async {
     String? userId = await SessionService.getLoggedUserId();
+
+    if (userId == null) {
+      return;
+    }
+
     for (UserModel currentUser in HiveBoxes.userBox.values) {
       if (currentUser.id == userId) {
+        if (!mounted) return;
+
         setState(() {
           user = currentUser;
         });
+
         break;
       }
     }
@@ -52,23 +61,34 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> loadStatistics() async {
     String? userId = await SessionService.getLoggedUserId();
+
     if (userId == null) {
       return;
     }
+
     List<BookModel> books = BookService.getBooks(userId);
+
     books.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
     List<BookModel> recentBooks = books.take(3).toList();
+
     int total = 0;
     int available = 0;
     int favorites = 0;
+
     for (BookModel book in books) {
       total += book.copies;
       available += book.availableCopies;
+
       if (book.isFavorite) {
         favorites++;
       }
     }
+
     int borrowed = total - available;
+
+    if (!mounted) return;
+
     setState(() {
       totalBooks = total;
       availableBooks = available;
@@ -91,23 +111,28 @@ class HomeScreenState extends State<HomeScreen> {
 
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsetsDirectional.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "Welcome, ${user?.username ?? "User"}👋",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+
               SizedBox(height: 3),
+
               Text(
                 "Here's what's happening in your library",
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
+
               SizedBox(height: 10),
+
               BannerImages(),
+
               SizedBox(height: 15),
+
               Text(
                 "Library Overview",
                 style: TextStyle(
@@ -116,7 +141,9 @@ class HomeScreenState extends State<HomeScreen> {
                   color: Color.fromARGB(255, 0, 12, 143),
                 ),
               ),
+
               SizedBox(height: 5),
+
               Row(
                 children: [
                   Expanded(
@@ -128,7 +155,9 @@ class HomeScreenState extends State<HomeScreen> {
                       color: const Color.fromARGB(255, 179, 231, 255),
                     ),
                   ),
+
                   SizedBox(width: 10),
+
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Available Books",
@@ -140,7 +169,9 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+
               SizedBox(height: 10),
+
               Row(
                 children: [
                   Expanded(
@@ -152,7 +183,9 @@ class HomeScreenState extends State<HomeScreen> {
                       color: const Color.fromARGB(255, 255, 184, 179),
                     ),
                   ),
+
                   SizedBox(width: 10),
+
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Favorites",
@@ -164,7 +197,9 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+
               SizedBox(height: 15),
+
               Text(
                 "Quick Actions",
                 style: TextStyle(
@@ -173,9 +208,13 @@ class HomeScreenState extends State<HomeScreen> {
                   color: Color.fromARGB(255, 0, 12, 143),
                 ),
               ),
+
               SizedBox(height: 5),
+
               QuickActionCard(),
+
               SizedBox(height: 15),
+
               Column(
                 children: [
                   Row(
@@ -189,6 +228,7 @@ class HomeScreenState extends State<HomeScreen> {
                           color: Color.fromARGB(255, 0, 12, 143),
                         ),
                       ),
+
                       TextButton(
                         onPressed: widget.onViewAllBooks,
                         child: Text(
@@ -202,6 +242,7 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
+
                   recentlyAddedBooks.isEmpty
                       ? Center(
                           child: Text(

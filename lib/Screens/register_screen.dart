@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/Login%20&%20Register/custom_text_field.dart';
@@ -16,7 +15,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
-
   final authenticationService = AuthenticationService();
 
   bool isPasswordVisible = false;
@@ -93,8 +91,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        // backgroundColor: Colors.white,
-        // foregroundColor: Colors.black,
         title: Column(
           children: [
             Text(

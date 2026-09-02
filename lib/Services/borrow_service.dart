@@ -16,9 +16,9 @@ class BorrowService {
     return borrows;
   }
 
-  static BorrowModel? getBorrow(String borrowId) {
+  static BorrowModel? getBorrow(String borrowId, String userId) {
     for (var borrow in HiveBoxes.borrowBox.values) {
-      if (borrow.id == borrowId) {
+      if (borrow.id == borrowId && borrow.userId == userId) {
         return borrow;
       }
     }

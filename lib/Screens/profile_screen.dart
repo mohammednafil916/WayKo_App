@@ -17,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? user;
+
   int totalBooks = 0;
   int availableBooks = 0;
   int borrowedBooks = 0;
@@ -25,20 +26,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    loadUser();
-    loadStatistics();
+    refreshProfile();
+  }
+
+  Future<void> refreshProfile() async {
+    await loadUser();
+    await loadStatistics();
   }
 
   Future<void> loadUser() async {
     String? userId = await SessionService.getLoggedUserId();
+
     if (userId == null) {
       return;
     }
+
     for (UserModel currentUser in HiveBoxes.userBox.values) {
       if (currentUser.id == userId) {
+        if (!mounted) return;
+
         setState(() {
           user = currentUser;
         });
+
         break;
       }
     }
@@ -46,13 +56,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> loadStatistics() async {
     String? userId = await SessionService.getLoggedUserId();
+
     if (userId == null) {
       return;
     }
+
     List<BookModel> books = BookService.getBooks(userId);
+
     int total = 0;
     int available = 0;
     int favorites = 0;
+
     for (BookModel book in books) {
       total += book.copies;
       available += book.availableCopies;
@@ -61,13 +75,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         favorites++;
       }
     }
+
     int borrowed = total - available;
+
+    if (!mounted) return;
+
     setState(() {
       totalBooks = total;
       availableBooks = available;
       borrowedBooks = borrowed;
       favoriteBooks = favorites;
     });
+  }
+
+  Future<void> openEditProfile() async {
+    final result = await Navigator.pushNamed(context, AppRoutes.editProfile);
+
+    if (result == true) {
+      await refreshProfile();
+    }
+  }
+
+  Future<void> openEditPassword() async {
+    await Navigator.pushNamed(context, AppRoutes.editPassword);
   }
 
   @override
@@ -78,9 +108,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text("Profile"),
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.settings))],
       ),
+
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
               Center(
@@ -90,7 +121,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       radius: 45,
                       child: Icon(Icons.person_2_sharp, size: 50),
                     ),
+
                     SizedBox(height: 10),
+
                     Text(
                       user?.username ?? "User",
                       style: TextStyle(
@@ -98,7 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     SizedBox(height: 3),
+
                     Text(
                       "Library Owner",
                       style: TextStyle(
@@ -106,7 +141,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     SizedBox(height: 3),
+
                     Text(
                       user?.email ?? "No email",
                       style: TextStyle(
@@ -117,52 +154,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
+
               SizedBox(height: 20),
+
               ProfileAnalysisCard(
                 totalBooks: totalBooks,
                 availableBooks: availableBooks,
                 borrowedBooks: borrowedBooks,
                 favoriteBooks: favoriteBooks,
               ),
+
               SizedBox(height: 20),
+
               ProfileActionCard(
                 icon: Icons.person,
                 title: "Edit Profile",
-                onTap: () async {
-                  final result = await Navigator.pushNamed(
-                    context,
-                    AppRoutes.editProfile,
-                  );
-                  if (result == true) {
-                    loadUser();
-                  }
-                },
+                onTap: openEditProfile,
               ),
+
               SizedBox(height: 5),
+
               ProfileActionCard(
                 icon: Icons.lock,
                 title: "Edit Password",
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.editPassword);
-                },
+                onTap: openEditPassword,
               ),
+
               SizedBox(height: 5),
+
               ProfileActionCard(
                 icon: Icons.bar_chart,
                 title: "View Statistics",
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.statistics);
+                onTap: () async {
+                  await Navigator.pushNamed(context, AppRoutes.statistics);
+
+                  await refreshProfile();
                 },
               ),
+
               SizedBox(height: 5),
+
               ProfileActionCard(
                 icon: Icons.info_outline_rounded,
                 title: "About WayKo",
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.wayKoAbout);
+                onTap: () async {
+                  await Navigator.pushNamed(context, AppRoutes.wayKoAbout);
                 },
               ),
+
               SizedBox(height: 10),
+
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -171,9 +212,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: const Color.fromARGB(255, 187, 187, 187),
                   ),
                 ),
+
                 child: ListTile(
                   leading: Icon(Icons.logout, color: Colors.red),
+
                   title: Text("Logout", style: TextStyle(color: Colors.red)),
+
                   trailing: IconButton(
                     onPressed: () {
                       showDialog(
@@ -189,9 +233,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 },
                                 child: Text("Cancel"),
                               ),
+
                               TextButton(
                                 onPressed: () async {
                                   await SessionService.logout();
+
+                                  if (!context.mounted) return;
+
                                   Navigator.pushReplacementNamed(
                                     context,
                                     AppRoutes.login,
