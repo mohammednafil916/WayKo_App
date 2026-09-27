@@ -1,104 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Models/book_model.dart';
+import 'package:wayko/Providers/add_book_provider.dart';
+import 'package:wayko/Providers/book_provider.dart';
 import 'package:wayko/Routes/screens_routes.dart';
 import 'package:wayko/widgets/Book/book_card.dart';
-import 'package:wayko/Models/book_model.dart';
-import 'package:wayko/Services/session_service.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/library_arrangement_service.dart';
 
-class BookScreen extends StatefulWidget {
+class BookScreen extends ConsumerWidget {
   const BookScreen({super.key});
 
   @override
-  State<BookScreen> createState() => _BookScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final books = ref.watch(bookProvider);
+    final filteredBooks = ref.watch(filteredBooksProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
+    final arrangement = ref.watch(addBookProvider);
 
-class _BookScreenState extends State<BookScreen> {
-  List<String> categories = ["All"];
-  String selectedCategory = "All";
+    final categories = ["All", ...arrangement.categories];
 
-  List<BookModel> books = [];
-
-  List<BookModel> get filteredBooks {
-    if (selectedCategory == "All") {
-      return books;
-    }
-
-    return books.where((book) => book.category == selectedCategory).toList();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    refreshBooks();
-  }
-
-  Future<void> refreshBooks() async {
-    await loadBooks();
-    await loadCategories();
-  }
-
-  Future<void> loadBooks() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    List<BookModel> loadedBooks = BookService.getBooks(userId);
-
-    if (!mounted) return;
-
-    setState(() {
-      books = loadedBooks;
-    });
-  }
-
-  Future<void> loadCategories() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    List<String> hiveCategories = LibraryArrangementService.getCategories(
-      userId,
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      categories = ["All", ...hiveCategories];
-
-      if (!categories.contains(selectedCategory)) {
-        selectedCategory = "All";
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Books"),
         actions: [
           IconButton(
-            onPressed: () async {
-              await showSearch(
-                context: context,
-                delegate: BookSearchDelegate(books),
-              );
-
-              await refreshBooks();
+            onPressed: () {
+              showSearch(context: context, delegate: BookSearchDelegate(books));
             },
             icon: Icon(Icons.search),
           ),
         ],
       ),
-
       body: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
         child: Column(
           children: [
             SizedBox(
@@ -130,18 +64,16 @@ class _BookScreenState extends State<BookScreen> {
                       selected: isSelected,
                       selectedColor: const Color.fromARGB(255, 0, 12, 143),
                       onSelected: (value) {
-                        setState(() {
-                          selectedCategory = category;
-                        });
+                        ref
+                            .read(selectedCategoryProvider.notifier)
+                            .setCategory(category);
                       },
                     ),
                   );
                 },
               ),
             ),
-
             SizedBox(height: 5),
-
             Align(
               alignment: Alignment.topLeft,
               child: Text(
@@ -153,9 +85,7 @@ class _BookScreenState extends State<BookScreen> {
                 ),
               ),
             ),
-
             SizedBox(height: 8),
-
             Expanded(
               child: filteredBooks.isEmpty
                   ? Center(
@@ -181,15 +111,12 @@ class _BookScreenState extends State<BookScreen> {
           ],
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         elevation: 10,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: Colors.lightBlue,
-        onPressed: () async {
-          await Navigator.pushNamed(context, AppRoutes.addBook);
-
-          await refreshBooks();
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.addBook);
         },
         child: Icon(Icons.add, color: Colors.black),
       ),

@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wayko/Models/book_model.dart';
 import 'package:wayko/Models/borrow_model.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/borrow_service.dart';
-import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/Providers/book_provider.dart';
+import 'package:wayko/Providers/borrow_provider.dart';
 import 'package:wayko/widgets/Borrow%20Book/borrow_book_header.dart';
 import 'package:wayko/widgets/Borrow%20Book/borrower_infromation.dart';
 import 'package:wayko/widgets/bottom_button.dart';
 
-class EditBorrowScreen extends StatefulWidget {
+class EditBorrowScreen extends ConsumerStatefulWidget {
   final BorrowModel borrow;
 
   const EditBorrowScreen({super.key, required this.borrow});
 
   @override
-  State<EditBorrowScreen> createState() => _EditBorrowScreenState();
+  ConsumerState<EditBorrowScreen> createState() => _EditBorrowScreenState();
 }
 
-class _EditBorrowScreenState extends State<EditBorrowScreen> {
+class _EditBorrowScreenState extends ConsumerState<EditBorrowScreen> {
   late TextEditingController borrowerNameController;
   late TextEditingController contactController;
   late TextEditingController borrowDateController;
@@ -69,31 +69,28 @@ class _EditBorrowScreenState extends State<EditBorrowScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please fill all required fields")),
       );
+
       return;
     }
 
     DateTime borrowDate = convertDate(borrowDateController.text);
-
     DateTime returnDate = convertDate(returnDateController.text);
 
     if (returnDate.isBefore(borrowDate)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Return date cannot be before borrow date")),
       );
+
       return;
     }
 
     widget.borrow.borrowerName = borrowerNameController.text.trim();
-
     widget.borrow.borrowerContact = contactController.text.trim();
-
     widget.borrow.borrowDate = borrowDate;
-
     widget.borrow.returnDate = returnDate;
-
     widget.borrow.notes = notesController.text.trim();
 
-    await BorrowService.updateBorrow(widget.borrow);
+    await ref.read(borrowProvider.notifier).updateBorrow(widget.borrow);
 
     if (!mounted) return;
 
@@ -117,78 +114,66 @@ class _EditBorrowScreenState extends State<EditBorrowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: SessionService.getLoggedUserId(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(title: Text("Edit Borrow")),
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+    final books = ref.watch(bookProvider);
+    BookModel? book;
+    for (final item in books) {
+      if (item.id == widget.borrow.bookId) {
+        book = item;
+        break;
+      }
+    }
 
-        String userId = snapshot.data!;
+    if (book == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text("Edit Borrow")),
+        body: Center(child: Text("Book not found")),
+      );
+    }
 
-        BookModel? book = BookService.getBook(widget.borrow.bookId, userId);
-
-        if (book == null) {
-          return Scaffold(
-            appBar: AppBar(title: Text("Edit Borrow")),
-            body: Center(child: Text("Book not found")),
-          );
-        }
-
-        return Scaffold(
-          appBar: AppBar(title: Text("Edit Borrow")),
-          body: SingleChildScrollView(
-            padding: EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BorrowBookHeader(
-                  image: book.coverImage,
-                  title: book.title,
-                  author: book.author,
-                  category: book.category,
-                  copiesCount: book.availableCopies.toString(),
-                ),
-
-                SizedBox(height: 15),
-
-                Text(
-                  "Borrower Information",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Colors.blue.shade900,
-                  ),
-                ),
-
-                SizedBox(height: 10),
-
-                BorrowerInfoCard(
-                  borrowerNameController: borrowerNameController,
-                  contactController: contactController,
-                  borrowDateController: borrowDateController,
-                  returnDateController: returnDateController,
-                  notesController: notesController,
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(title: Text("Edit Borrow")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BorrowBookHeader(
+              image: book.coverImage,
+              title: book.title,
+              author: book.author,
+              category: book.category,
+              copiesCount: book.availableCopies.toString(),
             ),
-          ),
-
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: BottomButton(
-                onPress: updateBorrow,
-                title: "Update Borrow",
-                icon: Icons.save,
+            SizedBox(height: 15),
+            Text(
+              "Borrower Information",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.blue.shade900,
               ),
             ),
+            SizedBox(height: 10),
+            BorrowerInfoCard(
+              borrowerNameController: borrowerNameController,
+              contactController: contactController,
+              borrowDateController: borrowDateController,
+              returnDateController: returnDateController,
+              notesController: notesController,
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: BottomButton(
+            onPress: updateBorrow,
+            title: "Update Borrow",
+            icon: Icons.save,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

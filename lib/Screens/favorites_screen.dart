@@ -1,38 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/widgets/Favorite/favorite_book_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wayko/Models/book_model.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/Providers/book_provider.dart';
+import 'package:wayko/widgets/Favorite/favorite_book_card.dart';
 
-class FavoritesScreen extends StatefulWidget {
+class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
 
   @override
-  State<FavoritesScreen> createState() => _FavoritesScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteBooks = ref.watch(favoriteBooksProvider);
 
-class _FavoritesScreenState extends State<FavoritesScreen> {
-  List<BookModel> favoriteBooks = [];
-
-  @override
-  void initState() {
-    super.initState();
-    loadFavoriteBooks();
-  }
-
-  Future<void> loadFavoriteBooks() async {
-    String? userId = await SessionService.getLoggedUserId();
-    if (userId == null) {
-      return;
-    }
-    List<BookModel> books = BookService.getBooks(userId);
-    setState(() {
-      favoriteBooks = books.where((book) => book.isFavorite).toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -52,7 +30,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Column(
           children: [
             Row(
@@ -63,7 +41,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 Container(
-                  padding: EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 134, 200, 255),
                     borderRadius: BorderRadius.circular(5),
@@ -90,7 +68,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         BookModel book = favoriteBooks[index];
 
                         return Padding(
-                          padding: EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.only(bottom: 10),
                           child: FavoriteBookCard(
                             book: book,
                             image: book.coverImage,
@@ -116,7 +94,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
 class FavoriteBookSearchDelegate extends SearchDelegate<BookModel?> {
   final List<BookModel> favoriteBooks;
+
   FavoriteBookSearchDelegate({required this.favoriteBooks});
+
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -152,14 +132,17 @@ class FavoriteBookSearchDelegate extends SearchDelegate<BookModel?> {
 
   Widget buildSearchResults() {
     String searchText = query.trim().toLowerCase();
+
     if (searchText.isEmpty) {
       return SizedBox();
     }
+
     List<BookModel> results = favoriteBooks.where((book) {
       return book.title.toLowerCase().contains(searchText) ||
           book.author.toLowerCase().contains(searchText) ||
           book.category.toLowerCase().contains(searchText);
     }).toList();
+
     if (results.isEmpty) {
       return Center(
         child: Text(
@@ -168,12 +151,14 @@ class FavoriteBookSearchDelegate extends SearchDelegate<BookModel?> {
         ),
       );
     }
+
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
         BookModel book = results[index];
+
         return Padding(
-          padding: EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5),
           child: FavoriteBookCard(
             book: book,
             image: book.coverImage,

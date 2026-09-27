@@ -1,105 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Providers/book_provider.dart';
+import 'package:wayko/Providers/session_provider.dart';
+import 'package:wayko/Providers/statistics_provider.dart';
 import 'package:wayko/widgets/Home/banner_images.dart';
 import 'package:wayko/widgets/Home/library_overview_card.dart';
 import 'package:wayko/widgets/Home/quick_action_card.dart';
 import 'package:wayko/widgets/Home/recently_book_card.dart';
-import 'package:wayko/Models/user_model.dart';
-import 'package:wayko/Services/hive_boxes.dart';
-import 'package:wayko/Services/session_service.dart';
-import 'package:wayko/Models/book_model.dart';
-import 'package:wayko/Services/book_service.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   final VoidCallback onViewAllBooks;
 
   const HomeScreen({super.key, required this.onViewAllBooks});
 
   @override
-  State<HomeScreen> createState() => HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    final stats = ref.watch(libraryOverviewStatsProvider);
+    final recentlyAddedBooks = ref.watch(recentlyAddedBooksProvider);
 
-class HomeScreenState extends State<HomeScreen> {
-  UserModel? user;
-
-  int totalBooks = 0;
-  int availableBooks = 0;
-  int borrowedBooks = 0;
-  int favoriteBooks = 0;
-
-  List<BookModel> recentlyAddedBooks = [];
-
-  @override
-  void initState() {
-    super.initState();
-    refreshHome();
-  }
-
-  void refreshHome() {
-    loadUser();
-    loadStatistics();
-  }
-
-  Future<void> loadUser() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    for (UserModel currentUser in HiveBoxes.userBox.values) {
-      if (currentUser.id == userId) {
-        if (!mounted) return;
-
-        setState(() {
-          user = currentUser;
-        });
-
-        break;
-      }
-    }
-  }
-
-  Future<void> loadStatistics() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    List<BookModel> books = BookService.getBooks(userId);
-
-    books.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-    List<BookModel> recentBooks = books.take(3).toList();
-
-    int total = 0;
-    int available = 0;
-    int favorites = 0;
-
-    for (BookModel book in books) {
-      total += book.copies;
-      available += book.availableCopies;
-
-      if (book.isFavorite) {
-        favorites++;
-      }
-    }
-
-    int borrowed = total - available;
-
-    if (!mounted) return;
-
-    setState(() {
-      totalBooks = total;
-      availableBooks = available;
-      borrowedBooks = borrowed;
-      favoriteBooks = favorites;
-      recentlyAddedBooks = recentBooks;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -108,7 +27,6 @@ class HomeScreenState extends State<HomeScreen> {
           IconButton(onPressed: () {}, icon: Icon(Icons.notifications)),
         ],
       ),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -119,20 +37,14 @@ class HomeScreenState extends State<HomeScreen> {
                 "Welcome, ${user?.username ?? "User"}👋",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-
               SizedBox(height: 3),
-
               Text(
                 "Here's what's happening in your library",
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
-
               SizedBox(height: 10),
-
               BannerImages(),
-
               SizedBox(height: 15),
-
               Text(
                 "Library Overview",
                 style: TextStyle(
@@ -141,27 +53,23 @@ class HomeScreenState extends State<HomeScreen> {
                   color: Color.fromARGB(255, 0, 12, 143),
                 ),
               ),
-
               SizedBox(height: 5),
-
               Row(
                 children: [
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Total Books",
-                      value: "$totalBooks",
+                      value: "${stats.totalBooks}",
                       icon: Icons.library_books,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 179, 231, 255),
                     ),
                   ),
-
                   SizedBox(width: 10),
-
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Available Books",
-                      value: "$availableBooks",
+                      value: "${stats.availableBooks}",
                       icon: Icons.book,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 213, 245, 177),
@@ -169,27 +77,23 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-
               SizedBox(height: 10),
-
               Row(
                 children: [
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Borrowed Books",
-                      value: "$borrowedBooks",
+                      value: "${stats.borrowedBooks}",
                       icon: Icons.person,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 255, 184, 179),
                     ),
                   ),
-
                   SizedBox(width: 10),
-
                   Expanded(
                     child: LibraryOverviewCard(
                       title: "Favorites",
-                      value: "$favoriteBooks",
+                      value: "${stats.favoriteBooks}",
                       icon: Icons.star_border,
                       iconColor: Colors.black,
                       color: const Color.fromARGB(255, 179, 231, 255),
@@ -197,9 +101,7 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-
               SizedBox(height: 15),
-
               Text(
                 "Quick Actions",
                 style: TextStyle(
@@ -208,13 +110,9 @@ class HomeScreenState extends State<HomeScreen> {
                   color: Color.fromARGB(255, 0, 12, 143),
                 ),
               ),
-
               SizedBox(height: 5),
-
               QuickActionCard(),
-
               SizedBox(height: 15),
-
               Column(
                 children: [
                   Row(
@@ -228,9 +126,8 @@ class HomeScreenState extends State<HomeScreen> {
                           color: Color.fromARGB(255, 0, 12, 143),
                         ),
                       ),
-
                       TextButton(
-                        onPressed: widget.onViewAllBooks,
+                        onPressed: onViewAllBooks,
                         child: Text(
                           "View all",
                           style: TextStyle(
@@ -242,7 +139,6 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-
                   recentlyAddedBooks.isEmpty
                       ? Center(
                           child: Text(

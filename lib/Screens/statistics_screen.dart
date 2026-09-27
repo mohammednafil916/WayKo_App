@@ -1,216 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Providers/statistics_provider.dart';
 import 'package:wayko/widgets/Home/library_overview_card.dart';
-import 'package:wayko/widgets/Statistics/statistics_small_card.dart';
-import 'package:wayko/widgets/Statistics/circle_chart.dart';
-import 'package:wayko/widgets/Statistics/chart_percentage_data.dart';
 import 'package:wayko/widgets/Statistics/bottom_info_card.dart';
-import 'package:wayko/Models/book_model.dart';
-import 'package:wayko/Models/borrow_model.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/borrow_service.dart';
-import 'package:wayko/Services/session_service.dart';
-import 'package:wayko/Models/library_arrangement_model.dart';
-import 'package:wayko/Services/library_arrangement_service.dart';
+import 'package:wayko/widgets/Statistics/chart_percentage_data.dart';
+import 'package:wayko/widgets/Statistics/circle_chart.dart';
+import 'package:wayko/widgets/Statistics/statistics_small_card.dart';
 
-class StatisticsScreen extends StatefulWidget {
+class StatisticsScreen extends ConsumerWidget {
   const StatisticsScreen({super.key});
 
-  @override
-  State<StatisticsScreen> createState() => _StatisticsScreenState();
-}
-
-class _StatisticsScreenState extends State<StatisticsScreen> {
-  int totalBooks = 0;
-  int availableBooks = 0;
-  int borrowedBooks = 0;
-  int returnedBooks = 0;
-  int overdueBooks = 0;
-  int favoriteBooks = 0;
-  int categoriesCount = 0;
-  int floorsCount = 0;
-  int racksCount = 0;
-  int shelvesCount = 0;
-
-  DateTime? fromDate;
-  DateTime? toDate;
-  List<BorrowModel> allBorrows = [];
-
-  double get availablePercentage {
-    if (totalBooks == 0) {
-      return 0;
-    }
-    return availableBooks / totalBooks * 100;
-  }
-
-  double get borrowedPercentage {
-    if (isDateFilterActive) {
-      int totalActivity = borrowedBooks + returnedBooks + overdueBooks;
-      if (totalActivity == 0) {
-        return 0;
-      }
-      return borrowedBooks / totalActivity * 100;
-    }
-    if (totalBooks == 0) {
-      return 0;
-    }
-    return borrowedBooks / totalBooks * 100;
-  }
-
-  bool get isDateFilterActive {
-    return fromDate != null && toDate != null;
-  }
-
-  bool get hasDateActivity {
-    return borrowedBooks > 0 || returnedBooks > 0 || overdueBooks > 0;
-  }
-
-  double get returnedPercentage {
-    int totalActivity = borrowedBooks + returnedBooks + overdueBooks;
-    if (totalActivity == 0) {
-      return 0;
-    }
-    return returnedBooks / totalActivity * 100;
-  }
-
-  double get overduePercentage {
-    int totalActivity = borrowedBooks + returnedBooks + overdueBooks;
-    if (totalActivity == 0) {
-      return 0;
-    }
-    return overdueBooks / totalActivity * 100;
-  }
-
-  Future<void> loadStatistics() async {
-    String? userId = await SessionService.getLoggedUserId();
-    if (userId == null) {
-      return;
-    }
-    List<BookModel> books = BookService.getBooks(userId);
-    allBorrows = BorrowService.getBorrows(userId);
-    LibraryArrangementModel? arrangement =
-        LibraryArrangementService.getArrangement(userId);
-    setState(() {
-      totalBooks = books.fold(0, (sum, book) => sum + book.copies);
-      availableBooks = books.fold(0, (sum, book) => sum + book.availableCopies);
-      borrowedBooks = allBorrows
-          .where(
-            (borrow) =>
-                borrow.status == "active" &&
-                !borrow.returnDate.isBefore(DateTime.now()) &&
-                isBorrowInSelectedRange(borrow),
-          )
-          .length;
-      returnedBooks = allBorrows
-          .where(
-            (borrow) =>
-                borrow.status == "returned" &&
-                isReturnedInSelectedRange(borrow),
-          )
-          .length;
-      overdueBooks = allBorrows
-          .where(
-            (borrow) =>
-                borrow.status == "active" &&
-                borrow.returnDate.isBefore(DateTime.now()) &&
-                isBorrowInSelectedRange(borrow),
-          )
-          .length;
-      favoriteBooks = books.where((book) => book.isFavorite).length;
-      categoriesCount = arrangement?.categories.length ?? 0;
-      floorsCount = arrangement?.floors.length ?? 0;
-      racksCount = arrangement?.racks.length ?? 0;
-      shelvesCount = arrangement?.shelves.length ?? 0;
-    });
-  }
-
-  Future<void> selectDate({required bool isFromDate}) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool isFromDate,
+  }) async {
+    final dateRange = ref.read(statsDateRangeProvider);
     DateTime initialDate = DateTime.now();
-    if (isFromDate && fromDate != null) {
-      initialDate = fromDate!;
+
+    if (isFromDate && dateRange.fromDate != null) {
+      initialDate = dateRange.fromDate!;
     }
-    if (!isFromDate && toDate != null) {
-      initialDate = toDate!;
+
+    if (!isFromDate && dateRange.toDate != null) {
+      initialDate = dateRange.toDate!;
     }
+
     DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     );
+
     if (selectedDate == null) {
       return;
     }
+
     if (isFromDate) {
-      if (toDate != null && selectedDate.isAfter(toDate!)) {
+      if (dateRange.toDate != null && selectedDate.isAfter(dateRange.toDate!)) {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("From date cannot be after To date")),
         );
         return;
       }
-      fromDate = selectedDate;
+      ref.read(statsDateRangeProvider.notifier).setFromDate(selectedDate);
     } else {
-      if (fromDate != null && selectedDate.isBefore(fromDate!)) {
+      if (dateRange.fromDate != null &&
+          selectedDate.isBefore(dateRange.fromDate!)) {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("To date cannot be before From date")),
         );
         return;
       }
-      toDate = selectedDate;
+      ref.read(statsDateRangeProvider.notifier).setToDate(selectedDate);
     }
-    await loadStatistics();
-  }
-
-  bool isBorrowInSelectedRange(BorrowModel borrow) {
-    if (fromDate == null || toDate == null) {
-      return true;
-    }
-    DateTime borrowDate = DateTime(
-      borrow.borrowDate.year,
-      borrow.borrowDate.month,
-      borrow.borrowDate.day,
-    );
-    DateTime startDate = DateTime(
-      fromDate!.year,
-      fromDate!.month,
-      fromDate!.day,
-    );
-    DateTime endDate = DateTime(toDate!.year, toDate!.month, toDate!.day);
-    return !borrowDate.isBefore(startDate) && !borrowDate.isAfter(endDate);
-  }
-
-  bool isReturnedInSelectedRange(BorrowModel borrow) {
-    if (borrow.actualReturnDate == null) {
-      return false;
-    }
-    if (fromDate == null || toDate == null) {
-      return true;
-    }
-    DateTime returnedDate = DateTime(
-      borrow.actualReturnDate!.year,
-      borrow.actualReturnDate!.month,
-      borrow.actualReturnDate!.day,
-    );
-    DateTime startDate = DateTime(
-      fromDate!.year,
-      fromDate!.month,
-      fromDate!.day,
-    );
-    DateTime endDate = DateTime(toDate!.year, toDate!.month, toDate!.day);
-    return !returnedDate.isBefore(startDate) && !returnedDate.isAfter(endDate);
   }
 
   @override
-  void initState() {
-    super.initState();
-    loadStatistics();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stats = ref.watch(detailedStatisticsProvider);
+    final dateRange = ref.watch(statsDateRangeProvider);
 
-  @override
-  Widget build(BuildContext context) {
+    final fromDate = dateRange.fromDate;
+    final toDate = dateRange.toDate;
+
     return Scaffold(
       appBar: AppBar(title: Text("Library Statistics")),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -219,13 +79,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      selectDate(isFromDate: true);
+                      _selectDate(context, ref, isFromDate: true);
                     },
                     icon: Icon(Icons.calendar_month),
                     label: Text(
                       fromDate == null
                           ? "From Date"
-                          : "${fromDate!.day}/${fromDate!.month}/${fromDate!.year}",
+                          : "${fromDate.day}/${fromDate.month}/${fromDate.year}",
                     ),
                   ),
                 ),
@@ -233,25 +93,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      selectDate(isFromDate: false);
+                      _selectDate(context, ref, isFromDate: false);
                     },
                     icon: Icon(Icons.calendar_month),
                     label: Text(
                       toDate == null
                           ? "To Date"
-                          : "${toDate!.day}/${toDate!.month}/${toDate!.year}",
+                          : "${toDate.day}/${toDate.month}/${toDate.year}",
                     ),
                   ),
                 ),
                 if (fromDate != null || toDate != null) ...[
                   SizedBox(width: 5),
                   IconButton(
-                    onPressed: () async {
-                      setState(() {
-                        fromDate = null;
-                        toDate = null;
-                      });
-                      await loadStatistics();
+                    onPressed: () {
+                      ref.read(statsDateRangeProvider.notifier).clearFilter();
                     },
                     icon: Icon(Icons.clear),
                     tooltip: "Clear filter",
@@ -265,7 +121,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: LibraryOverviewCard(
                     title: "Total Books",
-                    value: totalBooks.toString(),
+                    value: stats.totalBooks.toString(),
                     icon: Icons.library_books,
                     iconColor: Colors.black,
                     color: const Color.fromARGB(255, 179, 231, 255),
@@ -275,7 +131,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: LibraryOverviewCard(
                     title: "Available Books",
-                    value: availableBooks.toString(),
+                    value: stats.availableBooks.toString(),
                     icon: Icons.book,
                     iconColor: Colors.black,
                     color: const Color.fromARGB(255, 213, 245, 177),
@@ -289,7 +145,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: LibraryOverviewCard(
                     title: "Borrowed Books",
-                    value: borrowedBooks.toString(),
+                    value: stats.borrowedBooks.toString(),
                     icon: Icons.person,
                     iconColor: Colors.black,
                     color: const Color.fromARGB(255, 255, 184, 179),
@@ -299,7 +155,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: LibraryOverviewCard(
                     title: "Returned Books",
-                    value: returnedBooks.toString(),
+                    value: stats.returnedBooks.toString(),
                     icon: Icons.assignment_return,
                     iconColor: Colors.black,
                     color: const Color.fromARGB(255, 255, 195, 237),
@@ -313,7 +169,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: LibraryOverviewCard(
                     title: "Overdue Books",
-                    value: overdueBooks.toString(),
+                    value: stats.overdueBooks.toString(),
                     icon: Icons.warning_amber,
                     iconColor: Colors.black,
                     color: const Color.fromARGB(255, 255, 220, 179),
@@ -323,7 +179,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: LibraryOverviewCard(
                     title: "Favorites",
-                    value: favoriteBooks.toString(),
+                    value: stats.favoriteBooks.toString(),
                     icon: Icons.star_border,
                     iconColor: Colors.black,
                     color: const Color.fromARGB(255, 179, 231, 255),
@@ -337,30 +193,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 StatisticsSmallCard(
                   title: "Categories",
-                  value: categoriesCount.toString(),
+                  value: stats.categoriesCount.toString(),
                 ),
                 SizedBox(width: 8),
                 StatisticsSmallCard(
                   title: "Floors",
-                  value: floorsCount.toString(),
+                  value: stats.floorsCount.toString(),
                 ),
                 SizedBox(width: 8),
                 StatisticsSmallCard(
                   title: "Racks",
-                  value: racksCount.toString(),
+                  value: stats.racksCount.toString(),
                 ),
                 SizedBox(width: 8),
                 StatisticsSmallCard(
                   title: "Shelves",
-                  value: shelvesCount.toString(),
+                  value: stats.shelvesCount.toString(),
                 ),
               ],
             ),
             SizedBox(height: 20),
             Text(
-              fromDate == null && toDate == null
-                  ? "Overview"
-                  : "Borrowing Activity",
+              !stats.isDateFilterActive ? "Overview" : "Borrowing Activity",
               style: TextStyle(
                 color: Color.fromARGB(255, 0, 12, 143),
                 fontWeight: FontWeight.bold,
@@ -370,19 +224,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             SizedBox(height: 15),
             Row(
               children: [
-                if (!isDateFilterActive)
+                if (!stats.isDateFilterActive)
                   CircleChart(
-                    available: availableBooks,
-                    borrowed: borrowedBooks,
-                    returned: returnedBooks,
-                    overdue: overdueBooks,
+                    available: stats.availableBooks,
+                    borrowed: stats.borrowedBooks,
+                    returned: stats.returnedBooks,
+                    overdue: stats.overdueBooks,
                   )
-                else if (hasDateActivity)
+                else if (stats.hasDateActivity)
                   CircleChart(
                     available: 0,
-                    borrowed: borrowedBooks,
-                    returned: returnedBooks,
-                    overdue: overdueBooks,
+                    borrowed: stats.borrowedBooks,
+                    returned: stats.returnedBooks,
+                    overdue: stats.overdueBooks,
                   )
                 else
                   SizedBox(
@@ -403,33 +257,33 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      if (!isDateFilterActive)
+                      if (!stats.isDateFilterActive)
                         ChartPercentageData(
                           color: Colors.green,
                           title: "Available",
-                          value: availableBooks,
-                          percentage: availablePercentage,
+                          value: stats.availableBooks,
+                          percentage: stats.availablePercentage,
                         ),
-                      if (!isDateFilterActive) SizedBox(height: 15),
+                      if (!stats.isDateFilterActive) SizedBox(height: 15),
                       ChartPercentageData(
                         color: Colors.red,
                         title: "Borrowed",
-                        value: borrowedBooks,
-                        percentage: borrowedPercentage,
+                        value: stats.borrowedBooks,
+                        percentage: stats.borrowedPercentage,
                       ),
                       SizedBox(height: 15),
                       ChartPercentageData(
                         color: Colors.blue,
                         title: "Returned",
-                        value: returnedBooks,
-                        percentage: returnedPercentage,
+                        value: stats.returnedBooks,
+                        percentage: stats.returnedPercentage,
                       ),
                       SizedBox(height: 15),
                       ChartPercentageData(
                         color: Colors.orange,
                         title: "Overdue",
-                        value: overdueBooks,
-                        percentage: overduePercentage,
+                        value: stats.overdueBooks,
+                        percentage: stats.overduePercentage,
                       ),
                     ],
                   ),

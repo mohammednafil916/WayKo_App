@@ -1,53 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:wayko/Models/borrow_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wayko/Models/book_model.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/borrow_service.dart';
-import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/Models/borrow_model.dart';
+import 'package:wayko/Providers/book_provider.dart';
+import 'package:wayko/Providers/borrow_provider.dart';
+import 'package:wayko/Routes/screens_routes.dart';
+import 'package:wayko/widgets/Borrowed%20Book%20Details/borrowed_book_button.dart';
 import 'package:wayko/widgets/Borrowed%20Book%20Details/borrowed_book_header.dart';
 import 'package:wayko/widgets/Borrowed%20Book%20Details/borrower_info_card.dart';
-import 'package:wayko/widgets/Borrowed%20Book%20Details/borrowed_book_button.dart';
-import 'package:wayko/Routes/screens_routes.dart';
 
-class BorrowedBookDetailsScreen extends StatefulWidget {
+class BorrowedBookDetailsScreen extends ConsumerWidget {
   final BorrowModel borrow;
 
   const BorrowedBookDetailsScreen({super.key, required this.borrow});
 
-  @override
-  State<BorrowedBookDetailsScreen> createState() =>
-      _BorrowedBookDetailsScreenState();
-}
-
-class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
-  String? loggedUserId;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUser();
-  }
-
-  Future<void> loadUser() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (!mounted) return;
-
-    setState(() {
-      loggedUserId = userId;
-    });
-  }
-
-  String formatDate(DateTime date) {
+  String _formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }
 
-  Future<void> returnBook() async {
-    if (loggedUserId == null) {
-      return;
-    }
-
-    if (widget.borrow.status != "active") {
+  Future<void> _returnBook(
+    BuildContext context,
+    WidgetRef ref,
+    BorrowModel currentBorrow,
+  ) async {
+    if (currentBorrow.status != "active") {
       return;
     }
 
@@ -79,50 +55,54 @@ class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
       return;
     }
 
-    BookModel? book = BookService.getBook(widget.borrow.bookId, loggedUserId!);
+    final books = ref.read(bookProvider);
+    BookModel? book;
+    for (final item in books) {
+      if (item.id == currentBorrow.bookId) {
+        book = item;
+        break;
+      }
+    }
 
     if (book == null) {
-      if (!mounted) return;
-
+      if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Book not found")));
-
       return;
     }
 
     if (book.availableCopies < book.copies) {
       book.availableCopies++;
-
-      await BookService.updateBook(book);
+      await ref.read(bookProvider.notifier).updateBook(book);
     }
 
-    await BorrowService.returnBook(widget.borrow);
+    await ref.read(borrowProvider.notifier).returnBook(currentBorrow);
 
-    if (!mounted) return;
-
+    if (!context.mounted) return;
     Navigator.pop(context, true);
   }
 
-  Future<void> openEditBorrow() async {
-    await Navigator.pushNamed(
-      context,
-      AppRoutes.editBorrow,
-      arguments: widget.borrow,
-    );
-
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
-    if (loggedUserId == null) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final borrows = ref.watch(borrowProvider);
+    final books = ref.watch(bookProvider);
+
+    BorrowModel currentBorrow = borrow;
+    for (final b in borrows) {
+      if (b.id == borrow.id) {
+        currentBorrow = b;
+        break;
+      }
     }
 
-    BookModel? book = BookService.getBook(widget.borrow.bookId, loggedUserId!);
+    BookModel? book;
+    for (final item in books) {
+      if (item.id == currentBorrow.bookId) {
+        book = item;
+        break;
+      }
+    }
 
     if (book == null) {
       return Scaffold(
@@ -133,7 +113,6 @@ class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text("Borrowed Book Details")),
-
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: SingleChildScrollView(
@@ -145,9 +124,7 @@ class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
                 author: book.author,
                 category: book.category,
               ),
-
               SizedBox(height: 30),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -159,30 +136,33 @@ class _BorrowedBookDetailsScreenState extends State<BorrowedBookDetailsScreen> {
                   ),
                 ),
               ),
-
               SizedBox(height: 5),
-
               BorrowerInfoCard(
-                borrowerName: widget.borrow.borrowerName,
-                contact: widget.borrow.borrowerContact,
-                borrowDate: formatDate(widget.borrow.borrowDate),
-                returnDate: formatDate(widget.borrow.returnDate),
-                notes: widget.borrow.notes.isEmpty
+                borrowerName: currentBorrow.borrowerName,
+                contact: currentBorrow.borrowerContact,
+                borrowDate: _formatDate(currentBorrow.borrowDate),
+                returnDate: _formatDate(currentBorrow.returnDate),
+                notes: currentBorrow.notes.isEmpty
                     ? "No notes"
-                    : widget.borrow.notes,
+                    : currentBorrow.notes,
               ),
             ],
           ),
         ),
       ),
-
-      bottomNavigationBar: widget.borrow.status == "active"
+      bottomNavigationBar: currentBorrow.status == "active"
           ? SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: BorrowedBookButton(
-                  onReturn: returnBook,
-                  onEdit: openEditBorrow,
+                  onReturn: () => _returnBook(context, ref, currentBorrow),
+                  onEdit: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.editBorrow,
+                      arguments: currentBorrow,
+                    );
+                  },
                 ),
               ),
             )

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Providers/auth_provider.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/widgets/Login%20&%20Register/custom_text_field.dart';
-import 'package:wayko/Services/authentication_service.dart';
+import '../widgets/Login & Register/custom_text_field.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmpasswordController = TextEditingController();
-  final authenticationService = AuthenticationService();
 
   bool isPasswordVisible = false;
 
@@ -55,12 +55,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ).showSnackBar(SnackBar(content: Text("Passwords do not match")));
       return;
     }
+    final success = await ref
+        .read(authProvider.notifier)
+        .register(username, email, password);
 
-    bool success = await authenticationService.register(
-      username,
-      email,
-      password,
-    );
+    if (!mounted) return;
 
     if (!success) {
       ScaffoldMessenger.of(
@@ -88,6 +87,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isLoading = authState.isLoading;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -109,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -119,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 12, 143),
+                    color: Color.fromARGB(255, 0, 12, 143),
                   ),
                 ),
                 SizedBox(height: 5),
@@ -134,7 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 12, 143),
+                    color: Color.fromARGB(255, 0, 12, 143),
                   ),
                 ),
                 SizedBox(height: 5),
@@ -149,30 +151,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 12, 143),
+                    color: Color.fromARGB(255, 0, 12, 143),
                   ),
                 ),
                 SizedBox(height: 5),
-                TextFormField(
+                CustomTextField(
                   controller: passwordController,
+                  hintText: "Enter Your Password",
+                  prefixIcon: Icons.lock,
                   obscureText: !isPasswordVisible,
-                  decoration: InputDecoration(
-                    hintText: "Enter Your Password",
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isPasswordVisible = !isPasswordVisible;
-                        });
-                      },
-                      icon: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                     ),
                   ),
                 ),
@@ -182,30 +179,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 12, 143),
+                    color: Color.fromARGB(255, 0, 12, 143),
                   ),
                 ),
                 SizedBox(height: 5),
-                TextFormField(
+                CustomTextField(
                   controller: confirmpasswordController,
+                  hintText: "Confirm Your Password",
+                  prefixIcon: Icons.lock,
                   obscureText: !isPasswordVisible,
-                  decoration: InputDecoration(
-                    hintText: "Enter Your Password",
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isPasswordVisible = !isPasswordVisible;
-                        });
-                      },
-                      icon: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                     ),
                   ),
                 ),
@@ -214,8 +206,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 50,
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: register,
-                    child: Text("Create Account"),
+                    onPressed: isLoading ? null : register,
+                    child: isLoading
+                        ? SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text("Create Account"),
                   ),
                 ),
                 Row(

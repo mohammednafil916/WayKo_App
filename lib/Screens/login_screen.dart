@@ -1,21 +1,20 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Providers/auth_provider.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/widgets/Login%20&%20Register/custom_text_field.dart';
-import 'package:wayko/Services/authentication_service.dart';
+import '../widgets/Login & Register/custom_text_field.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  final authenticationService = AuthenticationService();
 
   bool isPasswordVisible = false;
 
@@ -44,7 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    bool success = await authenticationService.login(email, password);
+    bool success = await ref.read(authProvider.notifier).login(email, password);
+
+    if (!mounted) return;
 
     if (success) {
       Navigator.pushReplacementNamed(context, AppRoutes.navigation);
@@ -57,12 +58,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isLoading = authState.isLoading;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -101,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 12, 143),
+                    color: Color.fromARGB(255, 0, 12, 143),
                   ),
                 ),
                 SizedBox(height: 5),
@@ -116,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 12, 143),
+                    color: Color.fromARGB(255, 0, 12, 143),
                   ),
                 ),
                 SizedBox(height: 5),
@@ -147,7 +151,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 50,
                   width: double.infinity,
-                  child: ElevatedButton(onPressed: login, child: Text("Login")),
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : login,
+                    child: isLoading
+                        ? SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text("Login"),
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

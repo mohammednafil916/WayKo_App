@@ -1,114 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Providers/session_provider.dart';
+import 'package:wayko/Providers/statistics_provider.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/widgets/Profile/profile_analysis_card.dart';
 import 'package:wayko/widgets/Profile/profile_action_card.dart';
-import 'package:wayko/Models/user_model.dart';
-import 'package:wayko/Services/hive_boxes.dart';
-import 'package:wayko/Services/session_service.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Models/book_model.dart';
+import 'package:wayko/widgets/Profile/profile_analysis_card.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    final stats = ref.watch(libraryOverviewStatsProvider);
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  UserModel? user;
-
-  int totalBooks = 0;
-  int availableBooks = 0;
-  int borrowedBooks = 0;
-  int favoriteBooks = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    refreshProfile();
-  }
-
-  Future<void> refreshProfile() async {
-    await loadUser();
-    await loadStatistics();
-  }
-
-  Future<void> loadUser() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    for (UserModel currentUser in HiveBoxes.userBox.values) {
-      if (currentUser.id == userId) {
-        if (!mounted) return;
-
-        setState(() {
-          user = currentUser;
-        });
-
-        break;
-      }
-    }
-  }
-
-  Future<void> loadStatistics() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    List<BookModel> books = BookService.getBooks(userId);
-
-    int total = 0;
-    int available = 0;
-    int favorites = 0;
-
-    for (BookModel book in books) {
-      total += book.copies;
-      available += book.availableCopies;
-
-      if (book.isFavorite) {
-        favorites++;
-      }
-    }
-
-    int borrowed = total - available;
-
-    if (!mounted) return;
-
-    setState(() {
-      totalBooks = total;
-      availableBooks = available;
-      borrowedBooks = borrowed;
-      favoriteBooks = favorites;
-    });
-  }
-
-  Future<void> openEditProfile() async {
-    final result = await Navigator.pushNamed(context, AppRoutes.editProfile);
-
-    if (result == true) {
-      await refreshProfile();
-    }
-  }
-
-  Future<void> openEditPassword() async {
-    await Navigator.pushNamed(context, AppRoutes.editPassword);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Profile"),
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.settings))],
       ),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -121,9 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       radius: 45,
                       child: Icon(Icons.person_2_sharp, size: 50),
                     ),
-
                     SizedBox(height: 10),
-
                     Text(
                       user?.username ?? "User",
                       style: TextStyle(
@@ -131,9 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 3),
-
                     Text(
                       "Library Owner",
                       style: TextStyle(
@@ -141,9 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 3),
-
                     Text(
                       user?.email ?? "No email",
                       style: TextStyle(
@@ -154,56 +59,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-
               SizedBox(height: 20),
-
               ProfileAnalysisCard(
-                totalBooks: totalBooks,
-                availableBooks: availableBooks,
-                borrowedBooks: borrowedBooks,
-                favoriteBooks: favoriteBooks,
+                totalBooks: stats.totalBooks,
+                availableBooks: stats.availableBooks,
+                borrowedBooks: stats.borrowedBooks,
+                favoriteBooks: stats.favoriteBooks,
               ),
-
               SizedBox(height: 20),
-
               ProfileActionCard(
                 icon: Icons.person,
                 title: "Edit Profile",
-                onTap: openEditProfile,
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.editProfile);
+                },
               ),
-
               SizedBox(height: 5),
-
               ProfileActionCard(
                 icon: Icons.lock,
                 title: "Edit Password",
-                onTap: openEditPassword,
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.editPassword);
+                },
               ),
-
               SizedBox(height: 5),
-
               ProfileActionCard(
                 icon: Icons.bar_chart,
                 title: "View Statistics",
-                onTap: () async {
-                  await Navigator.pushNamed(context, AppRoutes.statistics);
-
-                  await refreshProfile();
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.statistics);
                 },
               ),
-
               SizedBox(height: 5),
-
               ProfileActionCard(
                 icon: Icons.info_outline_rounded,
                 title: "About WayKo",
-                onTap: () async {
-                  await Navigator.pushNamed(context, AppRoutes.wayKoAbout);
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.wayKoAbout);
                 },
               ),
-
               SizedBox(height: 10),
-
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -212,33 +107,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: const Color.fromARGB(255, 187, 187, 187),
                   ),
                 ),
-
                 child: ListTile(
                   leading: Icon(Icons.logout, color: Colors.red),
-
                   title: Text("Logout", style: TextStyle(color: Colors.red)),
-
                   trailing: IconButton(
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (context) {
+                        builder: (dialogContext) {
                           return AlertDialog(
                             title: Text("Logout"),
                             content: Text("Are you sure you want to logout?"),
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.pop(dialogContext);
                                 },
                                 child: Text("Cancel"),
                               ),
-
                               TextButton(
                                 onPressed: () async {
-                                  await SessionService.logout();
+                                  Navigator.pop(dialogContext);
+                                  await ref
+                                      .read(sessionProvider.notifier)
+                                      .logout();
 
-                                  if (!context.mounted) return;
+                                  if (!context.mounted) {
+                                    return;
+                                  }
 
                                   Navigator.pushReplacementNamed(
                                     context,

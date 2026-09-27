@@ -1,49 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wayko/Models/book_model.dart';
+import 'package:wayko/Providers/book_provider.dart';
 import 'package:wayko/Routes/screens_routes.dart';
-import 'package:wayko/Services/book_service.dart';
-import 'package:wayko/Services/session_service.dart';
+import 'package:wayko/widgets/Book%20Details/book_action_buttons.dart';
 import 'package:wayko/widgets/Book%20Details/book_details_header.dart';
 import 'package:wayko/widgets/Book%20Details/book_location_card.dart';
 import 'package:wayko/widgets/Book%20Details/book_stats_card.dart';
-import 'package:wayko/widgets/Book%20Details/book_action_buttons.dart';
-import 'package:wayko/Models/book_model.dart';
 
-class BookDetailsScreen extends StatefulWidget {
+class BookDetailsScreen extends ConsumerWidget {
   final BookModel book;
 
   const BookDetailsScreen({super.key, required this.book});
 
-  @override
-  State<BookDetailsScreen> createState() => _BookDetailsScreenState();
-}
-
-class _BookDetailsScreenState extends State<BookDetailsScreen> {
-  late BookModel book;
-
-  @override
-  void initState() {
-    super.initState();
-    book = widget.book;
-    refreshBook();
-  }
-
-  Future<void> refreshBook() async {
-    String? userId = await SessionService.getLoggedUserId();
-
-    if (userId == null) {
-      return;
-    }
-
-    BookModel? updatedBook = BookService.getBook(widget.book.id, userId);
-    if (!mounted) return;
-    if (updatedBook != null) {
-      setState(() {
-        book = updatedBook;
-      });
-    }
-  }
-
-  Future<void> deleteBook() async {
+  Future<void> deleteBook(
+    BuildContext context,
+    WidgetRef ref,
+    BookModel currentBook,
+  ) async {
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -71,80 +45,71 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (confirm != true) {
       return;
     }
-    await BookService.deleteBook(book);
-    if (!mounted) return;
+
+    await ref.read(bookProvider.notifier).deleteBook(currentBook);
+
+    if (!context.mounted) return;
+
     Navigator.pop(context, true);
   }
 
-  Future<void> openEditBook() async {
-    await Navigator.pushNamed(context, AppRoutes.editBook, arguments: book);
-    await refreshBook();
-  }
-
-  Future<void> openBorrowBook() async {
-    await Navigator.pushNamed(context, AppRoutes.borrowBook, arguments: book);
-    await refreshBook();
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final books = ref.watch(bookProvider);
+    BookModel currentBook = book;
+
+    for (final item in books) {
+      if (item.id == book.id) {
+        currentBook = item;
+        break;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text("Book Details")),
-
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           child: Column(
             children: [
               BookDetailsHeader(
-                image: book.coverImage,
-                title: book.title,
-                author: book.author,
-                category: book.category,
-                isFavorite: book.isFavorite,
-                onFavorite: () async {
-                  await BookService.toggleFavorite(book);
-
-                  await refreshBook();
+                image: currentBook.coverImage,
+                title: currentBook.title,
+                author: currentBook.author,
+                category: currentBook.category,
+                isFavorite: currentBook.isFavorite,
+                onFavorite: () {
+                  ref.read(bookProvider.notifier).toggleFavorite(currentBook);
                 },
               ),
-
               SizedBox(height: 25),
-
               Row(
                 children: [
                   BookStatsCard(
                     title: "Total Copies",
-                    value: book.copies.toString(),
+                    value: currentBook.copies.toString(),
                   ),
-
                   SizedBox(width: 30),
-
                   BookStatsCard(
                     title: "Borrowed",
-                    value: (book.copies - book.availableCopies).toString(),
+                    value: (currentBook.copies - currentBook.availableCopies)
+                        .toString(),
                   ),
-
                   SizedBox(width: 30),
-
                   BookStatsCard(
                     title: "Available",
-                    value: book.availableCopies.toString(),
+                    value: currentBook.availableCopies.toString(),
                   ),
                 ],
               ),
-
               SizedBox(height: 20),
-
               BookLocationCard(
-                floor: book.floor,
-                section: book.section,
-                rack: book.rack,
-                shelf: book.shelf,
+                floor: currentBook.floor,
+                section: currentBook.section,
+                rack: currentBook.rack,
+                shelf: currentBook.shelf,
               ),
-
               SizedBox(height: 20),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -152,15 +117,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
-
               SizedBox(height: 8),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  book.description.isEmpty
+                  currentBook.description.isEmpty
                       ? "No description available"
-                      : book.description,
+                      : currentBook.description,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey,
@@ -168,7 +131,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ),
                 ),
               ),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
@@ -187,14 +149,27 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ),
       ),
-
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: BookActionButtons(
-            onBorrow: openBorrowBook,
-            onEdit: openEditBook,
-            onDelete: deleteBook,
+            onBorrow: () {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.borrowBook,
+                arguments: currentBook,
+              );
+            },
+            onEdit: () {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.editBook,
+                arguments: currentBook,
+              );
+            },
+            onDelete: () {
+              deleteBook(context, ref, currentBook);
+            },
           ),
         ),
       ),
